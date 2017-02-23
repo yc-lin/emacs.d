@@ -65,6 +65,8 @@
 
 ;------------------------------------------------------------------------------
 ; Packages
+(require 'darkokai-theme)
+(load-theme 'darkokai)
 
 (require 'powerline)
 (powerline-center-evil-theme)
@@ -112,8 +114,8 @@
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
 
-(require 'google-c-style)
-(add-hook 'c-mode-common-hook 'google-set-c-style)
+;(require 'google-c-style)
+;(add-hook 'c-mode-common-hook 'google-set-c-style)
 
 (require 'clang-format)
 (setq clang-format-style "Google")
@@ -137,7 +139,7 @@
  '(custom-enabled-themes (quote (sanityinc-tomorrow-day)))
  '(custom-safe-themes
    (quote
-    ("bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "69831e572dc46ced47c5309bff8fc2f4a9e237e2bad2c76f313da814a4628694" default)))
+    ("70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "69831e572dc46ced47c5309bff8fc2f4a9e237e2bad2c76f313da814a4628694" default)))
  '(fci-rule-color "#003f8e")
  '(helm-ag-fuzzy-match t)
  '(helm-ag-ignore-buffer-patterns
@@ -255,7 +257,7 @@
 (global-set-key [f7] (lambda() (interactive) (find-file user-init-file)))
 (global-set-key (kbd "M-=") 'ace-window)
 (global-set-key (kbd "M--") 'next-multiframe-window)
-(global-set-key (kbd "M-0") 'delete-window)
+;(global-set-key (kbd "M-0") 'delete-window)
 
 (global-set-key (kbd "M-`") 'ace-jump-buffer)
 (global-set-key (kbd "M-1") 'next-buffer)
@@ -272,10 +274,12 @@
 ;(global-set-key (kbd "C-x f s") 'helm-do-ag-this-file)
 (global-set-key (kbd "M-4") 'helm-do-ag-this-file)
 (global-set-key (kbd "M-5") 'helm-do-ag-project-root)
+(global-set-key (kbd "M-6") 'clang-format-buffer)
+(global-set-key (kbd "M-0") 'avy-goto-line)
 ;(global-set-key (kbd "C-x f S") 'helm-do-ag)
 
-;(global-unset-key (kbd "C-z"))
-;(global-set-key (kbd "C-z") 'suspend-frame)
+;(global-unset-key (kbd "c-z"))
+;(global-set-key (kbd "c-z") 'suspend-frame)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
