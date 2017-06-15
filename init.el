@@ -6,7 +6,7 @@
 (add-to-list 'package-archives
              '("melpa-stable" ."http://melpa-stable.milkbox.net/packages/")
              t)
-(add-to-list 'load-path "~/.emacs.d/pkg")
+(add-to-list 'load-path "~/.emacs.d/pkg/")
 
 ;;------------------------------------------------------------------------------
 ;; custom Script
@@ -186,8 +186,19 @@
 (require 'cc-mode)
 (setq c-default-style "k&r")
 
-(require 'darkokai-theme)
-(load-theme 'darkokai t)
+;;(require 'darkokai-theme)
+;;(load-theme 'darkokai t)
+(load-theme 'zenburn t)
+
+(require 'ivy)
+(ivy-mode 1)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ivy-highlight-face ((t (:background "#FFFFFF")))))
+
 
 (require 'airline-themes)
 (load-theme 'airline-cool t)
@@ -280,11 +291,6 @@
 ;; (add-hook 'c++-mode-hook
 ;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
 
-
-
-;;helm-ag
-;;(require 'helm-ag)
-
 ;;company
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
@@ -304,6 +310,10 @@
   (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
 (add-hook 'irony-mode-hook 'my-irony-mode-hook)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+;; irony build example
+;; cmake -DLIBCLANG_LIBRARY=/home/yclin/Downloads/clang/lib/libclang.so \
+;; -DLIBCLANG_INLCUDE_DIR=/home/yclin/Downloads/clang/include
+;;
 
 ;; company-irony
 (eval-after-load 'company
@@ -322,11 +332,11 @@
 ;;(require 'helm-etags-plus)
 ;;(setq tags-table-list '("./TAGS"))
 
-(autoload 'turn-on-ctags-auto-update-mode
-          "ctags-update" "turn on 'ctags-auto-update-mode'."
-          t)
-(add-hook 'c-mode-common-hook 'turn-on-ctags-auto-update-mode)
-(add-hook 'c++-mode-common-hook 'turn-on-ctags-auto-update-mode)
+;; (autoload 'turn-on-ctags-auto-update-mode
+;;           "ctags-update" "turn on 'ctags-auto-update-mode'."
+;;           t)
+;;(add-hook 'c-mode-common-hook 'turn-on-ctags-auto-update-mode)
+;;(add-hook 'c++-mode-common-hook 'turn-on-ctags-auto-update-mode)
 
 ;;------------------------------------------------------------------------------
 ;;key binding
@@ -345,8 +355,8 @@
                 'swap-buffers-in-windows)
 (global-set-key (kbd "M-8")
                 'er/expand-region)
-(global-set-key (kbd "M-]")
-                'helm-etags-plus-history-go-back)
+;; (global-set-key (kbd "M-]")
+;;                 'helm-etags-plus-history-go-back)
 (global-set-key (kbd "M-=")
                 'enlarge-window-horizontally)
 (global-set-key (kbd "M--")
@@ -355,11 +365,12 @@
                 'enlarge-window)
 (global-set-key (kbd "M-9")
                 'shrink-window)
-(global-set-key (kbd "M-x")
-                ;;'helm-smex)
-                'counsel-M-x)
 (global-set-key (kbd "M-s")
                 'slime-selector)
+
+(require 'ivy-smex)
+(global-set-key (kbd "M-x")
+                'ivy-smex)
 ;;(global-set-key (kbd "M-X") 'smex-major-mode-commands)
 ;; This is your old M-x.
 ;;(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
@@ -370,7 +381,7 @@
 (evil-leader/set-key
   ;;"f" 'helm-find
   "f" 'counsel-git
-  "F" 'counsel-find-files
+  "F" 'counsel-find-file
   ;;"F" 'helm-find-files
   ;;"a" 'helm-do-ag
   "a" 'counsel-ag
@@ -379,7 +390,11 @@
   ;;"@" 'helm-imenu
   "@" 'counsel-imenu
   ;;"t" 'helm-etags-plus-select
-  "t" 'counsel-gtags-find-symbol
+  "ts" 'counsel-gtags-find-symbol
+  "tr" 'counsel-gtags-find-reference
+  "td" 'counsel-gtags-find-definition
+  "tp" 'counsel-gtags-go-backward
+  "tn" 'counsel-gtags-go-forward
   "T" 'counsel-find-symbol
   "l" 'list-buffers
   "k" 'kill-buffer
@@ -395,68 +410,60 @@
 (require 'yasnippet)
 (yas-global-mode 1)
 
-
 ;;------------------------------------------------------------------------------
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  )
-
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  '(ansi-color-faces-vector
-     [default bold shadow italic underline bold bold-italic bold])
-  '(ansi-color-names-vector
-     (vector "#ffffff" "#ff9da4" "#d1f1a9" "#ffeead" "#bbdaff" "#ebbbff" "#99ffff" "#003f8e"))
-  '(compilation-message-face (quote default))
-  '(custom-safe-themes
-     (quote
-       ("70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
-  '(fci-rule-color "#003f8e")
-  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
-  '(highlight-tail-colors
-     (quote
-       (("#424748" 0.0)
-        ("#63de5d" 0.2)
-        ("#4BBEAE" 0.3)
-        ("#1DB4D0" 0.5)
-        ("#9A8F21" 0.6)
-        ("#A75B00" 0.7)
-        ("#F309DF" 0.85)
-        ("#424748" 0.1))))
-  '(ivy-mode t)
-  '(magit-diff-use-overlays nil)
-  '(package-selected-packages
-     (quote
-       (counsel counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format ctags-update whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu darkokai-theme company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
-  '(pos-tip-background-color "#E6DB74")
-  '(pos-tip-foreground-color "#242728")
-  '(vc-annotate-background nil)
-  '(vc-annotate-color-map
-     (quote
-       ((20 . "#ff9da4")
-        (40 . "#ffc58f")
-        (60 . "#ffeead")
-        (80 . "#d1f1a9")
-        (100 . "#99ffff")
-        (120 . "#bbdaff")
-        (140 . "#ebbbff")
-        (160 . "#ff9da4")
-        (180 . "#ffc58f")
-        (200 . "#ffeead")
-        (220 . "#d1f1a9")
-        (240 . "#99ffff")
-        (260 . "#bbdaff")
-        (280 . "#ebbbff")
-        (300 . "#ff9da4")
-        (320 . "#ffc58f")
-        (340 . "#ffeead")
-        (360 . "#d1f1a9"))))
-  '(vc-annotate-very-old-color nil)
-  '(weechat-color-list
-     (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   (vector "#ffffff" "#ff9da4" "#d1f1a9" "#ffeead" "#bbdaff" "#ebbbff" "#99ffff" "#003f8e"))
+ '(compilation-message-face (quote default))
+ '(custom-safe-themes
+   (quote
+    ("70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
+ '(fci-rule-color "#003f8e")
+ '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
+ '(highlight-tail-colors
+   (quote
+    (("#424748" 0.0)
+     ("#63de5d" 0.2)
+     ("#4BBEAE" 0.3)
+     ("#1DB4D0" 0.5)
+     ("#9A8F21" 0.6)
+     ("#A75B00" 0.7)
+     ("#F309DF" 0.85)
+     ("#424748" 0.1))))
+ '(ivy-mode t)
+ '(magit-diff-use-overlays nil)
+ '(package-selected-packages
+   (quote
+    (wgrep zenburn-theme rainbow-mode atom-one-dark-theme cycle-themes adaptive-wrap counsel counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format ctags-update whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
+ '(pos-tip-background-color "#E6DB74")
+ '(pos-tip-foreground-color "#242728")
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#ff9da4")
+     (40 . "#ffc58f")
+     (60 . "#ffeead")
+     (80 . "#d1f1a9")
+     (100 . "#99ffff")
+     (120 . "#bbdaff")
+     (140 . "#ebbbff")
+     (160 . "#ff9da4")
+     (180 . "#ffc58f")
+     (200 . "#ffeead")
+     (220 . "#d1f1a9")
+     (240 . "#99ffff")
+     (260 . "#bbdaff")
+     (280 . "#ebbbff")
+     (300 . "#ff9da4")
+     (320 . "#ffc58f")
+     (340 . "#ffeead")
+     (360 . "#d1f1a9"))))
+ '(vc-annotate-very-old-color nil)
+ '(weechat-color-list
+   (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
