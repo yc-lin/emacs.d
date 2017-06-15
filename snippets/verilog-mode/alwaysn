@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: alwaysn
+# key: alwaysn
+# --
+always #@(negedge $1) begin
+   $0
+end

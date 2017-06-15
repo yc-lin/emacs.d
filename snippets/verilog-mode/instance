@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: instance
+# key: _ins
+# --
+$1 $2_ins(
+  $0
+);

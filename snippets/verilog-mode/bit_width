@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bit_width
+# key: [
+# --
+[$1:0] $0

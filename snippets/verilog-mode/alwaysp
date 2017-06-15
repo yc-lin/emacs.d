@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: alwaysp
+# key: alwaysp
+# --
+always #@(posedge $0) begin
+   $1
+end

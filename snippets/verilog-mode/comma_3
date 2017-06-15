@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: comma_3
+# key: _3
+# --
+$1, $2, $0
