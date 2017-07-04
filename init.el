@@ -157,6 +157,18 @@
           (lambda ()
             (which-function-mode t)))
 
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (counsel-gtags-mode t)))
+
+(add-hook 'c++-mode-common-hook
+          (lambda ()
+            (counsel-gtags-mode t)))
+
+(add-hook 'verilog-mode-common-hook
+          (lambda ()
+            (counsel-gtags-mode t)))
+
 
 (setq kill-buffer-query-functions (remq 'process-kill-buffer-query-function
                                         kill-buffer-query-functions))
@@ -188,7 +200,7 @@
 
 ;;(require 'darkokai-theme)
 ;;(load-theme 'darkokai t)
-(load-theme 'zenburn t)
+(load-theme 'sanityinc-tomorrow-night t)
 
 (require 'ivy)
 (ivy-mode 1)
@@ -298,6 +310,7 @@
 (setq company-minimum-prefix-length 1)
 (setq company-dabbrev-other-buffers t)
 (setq company-dabbrev-code-other-buffers 'all)
+(setq company-backends '((company-dabbrev-code company-gtags)))
 
 ;;irony
 (require 'irony)
@@ -423,7 +436,7 @@
  '(compilation-message-face (quote default))
  '(custom-safe-themes
    (quote
-    ("70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
+    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
  '(fci-rule-color "#003f8e")
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
  '(highlight-tail-colors
@@ -440,7 +453,7 @@
  '(magit-diff-use-overlays nil)
  '(package-selected-packages
    (quote
-    (wgrep zenburn-theme rainbow-mode atom-one-dark-theme cycle-themes adaptive-wrap counsel counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format ctags-update whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
+    (color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow wgrep rainbow-mode cycle-themes adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
  '(pos-tip-background-color "#E6DB74")
  '(pos-tip-foreground-color "#242728")
  '(vc-annotate-background nil)
