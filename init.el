@@ -70,6 +70,38 @@
                                         try-expand-line
                                         try-complete-lisp-symbol-partially
                                         try-complete-lisp-symbol))
+(setq *is-a-mac* (eq system-type 'darwin))
+(setq *cygwin* (eq system-type 'cygwin) )
+(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+(defun copy-to-x-clipboard ()
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (cond
+         ((and (display-graphic-p) x-select-enable-clipboard)
+          (x-set-selection 'CLIPBOARD (buffer-substring (region-beginning) (region-end))))
+         (t (shell-command-on-region (region-beginning) (region-end)
+                                     (cond
+                                      (*cygwin* "putclip")
+                                      (*is-a-mac* "pbcopy")
+                                      (*linux* "xsel -ib")))
+            ))
+        (message "Yanked region to clipboard!")
+        (deactivate-mark))
+        (message "No region active; can't yank to clipboard!")))
+(defun paste-from-x-clipboard()
+  (interactive)
+  (cond
+   ((and (display-graphic-p) x-select-enable-clipboard)
+    (insert (x-get-selection 'CLIPBOARD)))
+   (t (shell-command
+       (cond
+        (*cygwin* "getclip")
+        (*is-a-mac* "pbpaste")
+        (t "xsel -ob"))
+       1))
+   ))
+(setq save-interprogram-paste-before-kill t)
 
 ;; (defface font-lock-func-face
 ;;   '((nil (:foreground "#00ffd7" :weight bold))
@@ -131,11 +163,53 @@
      (message "with %s" yc-ag-arg-context)
      (setq counsel-ag-base-command yc-ag-arg-context)
      (setq yc-counsel-ag-arg 1))
+   ))
+
+;(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --color never %s ."
+(setq yc-rg-base-command-str   '"rg --no-heading --line-number --color never --follow")
+(setq yc-rg-arg-context-str    '" --context 1")
+(setq yc-rg-arg-ignorecase-str '" --ignore-case")
+(setq yc-rg-arg-regexp-str     '" --regexp")
+(setq yc-rg-arg-value 0)
+(setq yc-rg-cmd-str        yc-rg-base-command-str)
+
+(defun yc-rg-argument-change ()
+  "Doc-string for `counsel-rg-arg rebuild` function."
+  (progn
+   (setq yc-rg-cmd-str yc-rg-base-command-str)
+   (if (= (logand yc-rg-arg-value 1) 1) (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-context-str)))
+   (if (= (logand yc-rg-arg-value 2) 2) (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-ignorecase-str)))
+   (if (= (logand yc-rg-arg-value 4) 4) (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-regexp-str)))
+   (setq yc-rg-cmd-str (concat yc-rg-cmd-str " %s"))
+   (message "rg command is: %s" yc-rg-cmd-str)
+   (setq counsel-rg-base-command yc-rg-cmd-str)
+   ))
+
+(defun yc-rg-arg-set (value)
+  "Doc-string for `counsel-rg-arg select` function."
+  (progn
+    (if (= value 0) (setq yc-rg-arg-value 0))
+    (if (= value 1) (setq yc-rg-arg-value (+ yc-rg-arg-value 1)))
+    (if (= value 2) (setq yc-rg-arg-value (+ yc-rg-arg-value 2)))
+    (if (= value 4) (setq yc-rg-arg-value (+ yc-rg-arg-value 4)))
+    (yc-rg-argument-change) 
     ))
+(yc-rg-argument-change)
+
+(defun yc-rg-arg-set-default ()    (interactive) "Doc-string for set default"    (yc-rg-arg-set 0))
+(defun yc-rg-arg-set-context ()    (interactive) "Doc-string for set context"    (yc-rg-arg-set 1))
+(defun yc-rg-arg-set-ignorecase () (interactive) "Doc-string for set ignorecase" (yc-rg-arg-set 2))
+(defun yc-rg-arg-set-regrexp ()    (interactive) "Doc-string for set regrexp"    (yc-rg-arg-set 4))
+(defun yc-rg-arg-show-cmd-str ()   (interactive) "Doc-string for show query cmd" (message "rg command is: %s" counsel-rg-base-command))
 
 (setq systemverilog-imenu-generic-expression
-      '(("Class" "^class \\(.+\\)" 1)
-        ))
+      '(
+        ("class" "^class \\(.+\\)\\( \\)*" 1)
+        ;;("function" "\\( *\\)function\\( +\\)\\(.+\\)\\( +\\)\\(.+\\)" 3)
+        ;;("task" "task \\(.+\\)\\( \\)" 1)
+        ("module" "^module \\(.+\\)\\( \\)" 1)
+        ("interface" "^interface \\(.+\\)\\( \\)" 1)
+       ))
 
 (add-hook 'verilog-mode-hook (lambda () (setq imenu-generic-expression systemverilog-imenu-generic-expression)))
 
@@ -158,8 +232,6 @@
   (menu-bar-mode -1))
 (when (featurep 'scroll-bar)
   (menu-bar-mode -1))
-;;(global-linum-mode 1)
-;;(setq linum-format "%d ")
 (font-lock-add-keywords 'c-mode
                         '(("\\<\\(\\sw+\\) ?(" 1 'font-lock-function-name-face)))
 
@@ -225,24 +297,10 @@
 
 (require 'verilog-mode)
 (setq verilog-auto-newline nil)
-  (custom-set-variables
-    '(verilog-align-ifelse t)
-    '(verilog-auto-delete-trailing-whitespace t)
-    '(verilog-auto-inst-param-value t)
-    '(verilog-auto-inst-vector nil)
-    '(verilog-auto-lineup (quote all))
-    '(verilog-auto-newline nil)
-    '(verilog-auto-save-policy nil)
-    '(verilog-auto-template-warn-unused t)
-    '(verilog-case-indent 4)
-    '(verilog-cexp-indent 4)
-    '(verilog-highlight-grouping-keywords t)
-    '(verilog-highlight-modules t)
-    '(verilog-indent-level 4)
-    '(verilog-indent-level-behavioral 4)
-    '(verilog-indent-level-declaration 4)
-    '(verilog-indent-level-module 4)
-    '(verilog-tab-to-comment t))
+
+(setq bookmark-default-file "~/.emacs.d/bookmarks"
+      bookmark-save-flag 1)
+  
 
 ;;------------------------------------------------------------------------------
 ;; Packages
@@ -269,11 +327,11 @@
 (require 'ivy)
 (ivy-mode 1)
 (custom-set-faces
-;; custom-set-faces was added by Custom.
-;; If you edit it by hand, you could mess it up, so be careful.
-;; Your init file should contain only one such instance.
-;; If there is more than one, they won't work right.
-'(ivy-highlight-face ((t (:background "#FFFFFF")))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ivy-highlight-face ((t (:background "#FFFFFF")))))
 
 
 (require 'airline-themes)
@@ -308,9 +366,9 @@
 ;; (autopair-global-mode)
 
 (require 'expand-region)
-;; must setting two variable to enable in evil-modeA
+
 ;; ignore EMACS MODE
-;; (setq evil-toggle-key "")
+(setq evil-toggle-key "")
 ;; Using VIM word forword behavior to replace EMCAS behavior
 ;; (Defalias #'forward-evil-word #'forward-evil-symbol)
 
@@ -324,7 +382,6 @@
                       (require 'evil-mc)
                       (global-evil-mc-mode 1)
                       (defalias #'forward-evil-word #'forward-evil-symbol)
-                      ;;(define-key evil-motion-state-map "\\" 'helm-swoop)
                       (define-key evil-motion-state-map "\\" 'swiper)
                       (remove-hook 'evil-insert-state-exit-hook 'expand-abbrev t)
 
@@ -386,8 +443,6 @@
 (require 'irony)
 (add-hook 'c++-mode-hook 'irony-mode)
 (add-hook 'c-mode-hook 'irony-mode)
-;; replace the `completion-at-point' and `complete-symbol' bindings in
-;; irony-mode's buffers by irony-mode's function
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
   (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
@@ -425,17 +480,15 @@
                 'my-previous-buffer)
 
 (global-set-key (kbd "M-1")
-                'ace-jump-buffer)
-(global-set-key (kbd "M-2")
-                'next-buffer)
-(global-set-key (kbd "M-3")
                 'next-multiframe-window)
-(global-set-key (kbd "M-4")
-                'swap-buffers-in-windows)
+(global-set-key (kbd "M-2")
+                'my-previous-buffer)
+(global-set-key (kbd "M-3")
+                'my-next-buffer)
 (global-set-key (kbd "M-5")
-                'ivy-occur)
-(global-set-key (kbd "M-8")
                 'er/expand-region)
+(global-set-key (kbd "M-6")
+                'ivy-occur)
 (global-set-key (kbd "M-9")
                 'shrink-window)
 (global-set-key (kbd "M-=")
@@ -444,46 +497,61 @@
                 'shrink-window-horizontally)
 (global-set-key (kbd "M-0")
                 'enlarge-window)
-(global-set-key (kbd "M-s")
-                'slime-selector)
-(global-set-key (kbd "M-r")
-                'ivy-regex-switch)
+
+;;(define-key evil-normal-state-map [escape] 'keyboard-quit)
+;;(define-key evil-visual-state-map [escape] 'keyboard-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+(define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+
+;;(global-set-key [escape] 'evil-exit-emacs-state)
+
 
 (require 'ivy-smex)
 (global-set-key (kbd "M-x")
                 'ivy-smex)
+
 (require 'evil-leader)
 (global-evil-leader-mode)
 
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  "f" 'counsel-git
-  "F" 'counsel-find-file
-  "a" 'counsel-ag
-  "A" 'yc-counsel-ag-argument-switch
+  "aa" 'counsel-rg
+  "m" 'counsel-bookmark
   "@" 'counsel-imenu
-  ;; "tf" 'counsle-gtags-go-forward
-  ;; "tb" 'counsle-gtags-go-backward
+  "fg" 'counsel-git
+  "ff" 'counsel-find-file
+  "ar" 'yc-rg-arg-set-default
+  "ai" 'yc-rg-arg-set-ignorecase
+  "ac" 'yc-rg-arg-set-context
+  "ae" 'yc-rg-arg-set-regrexp
+  "as" 'yc-rg-arg-show-cmd-str
+  "rr" 'ivy-regex-switch
   "ts" 'counsel-gtags-find-symbol
   "tr" 'counsel-gtags-find-reference
   "td" 'counsel-gtags-find-definition
-  "T" 'counsel-find-symbol
-  "l" 'list-buffers
-  "k" 'kill-buffer
-  "w" 'ace-window
   "ci" 'evilnc-comment-or-uncomment-lines
-  "cc" 'evilnc-copy-and-comment-lines
-  "cp" 'evilnc-comment-or-uncomment-paragraphs
-  "cr" 'comment-or-uncomment-region
-  "cv" 'evilnc-toggle-invert-comment-line-by-line
-  "ss" 'slime-selector
   "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
-  "gc" 'wgrep-finish-edit)
+  "gc" 'wgrep-finish-edit
+  "xc" 'copy-to-x-clipboard
+  "xp" 'paste-from-x-clipboard
+  "bl" 'ivy-switch-buffer
+  "bb" 'ace-jump-buffer
+  "bd" 'kill-buffer
+  "bo" 'ivy-switch-buffer-other-window
+  "s" 'swap-buffers-in-windows
+  "w" 'ace-window
+  )
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 (require 'yasnippet)
 (yas-global-mode 1)
-
 
 ;;------------------------------------------------------------------------------
 (custom-set-variables
@@ -495,6 +563,7 @@
    [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
    (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
+ '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(compilation-message-face (quote default))
  '(custom-safe-themes
    (quote
@@ -514,7 +583,7 @@
  '(magit-diff-use-overlays nil)
  '(package-selected-packages
    (quote
-    (smooth-scrolling vlf color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow wgrep rainbow-mode cycle-themes adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
+    (csv-mode ripgrep icicles smooth-scrolling vlf color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow wgrep rainbow-mode cycle-themes adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
  '(pos-tip-background-color "#E6DB74")
  '(pos-tip-foreground-color "#242728")
  '(vc-annotate-background nil)
@@ -539,5 +608,22 @@
      (340 . "#f0c674")
      (360 . "#b5bd68"))))
  '(vc-annotate-very-old-color nil)
+ '(verilog-align-ifelse t)
+ '(verilog-auto-delete-trailing-whitespace t)
+ '(verilog-auto-inst-param-value t)
+ '(verilog-auto-inst-vector nil)
+ '(verilog-auto-lineup (quote all))
+ '(verilog-auto-newline nil)
+ '(verilog-auto-save-policy nil)
+ '(verilog-auto-template-warn-unused t)
+ '(verilog-case-indent 2)
+ '(verilog-cexp-indent 2)
+ '(verilog-highlight-grouping-keywords t)
+ '(verilog-highlight-modules t)
+ '(verilog-indent-level 2)
+ '(verilog-indent-level-behavioral 2)
+ '(verilog-indent-level-declaration 2)
+ '(verilog-indent-level-module 2)
+ '(verilog-tab-to-comment nil)
  '(weechat-color-list
    (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
