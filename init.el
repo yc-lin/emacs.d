@@ -1,22 +1,18 @@
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
-             '("melpa" ."http://melpa.org/packages/")
+             '("melpa" . "http://melpa.org/packages/")
              t)
 (add-to-list 'package-archives
-             '("melpa-stable" ."http://melpa-stable.milkbox.net/packages/")
+             '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
              t)
 (add-to-list 'load-path "~/.emacs.d/pkg/")
 
+
 ;;------------------------------------------------------------------------------
 ;; custom Script
-(setq my-skippable-buffers '("*Messages*"
-                             "*scratch*"
-                             "*Help*"
-                             "*Completions*"
-                             "*Buffer List*"
-                             "*Backtrace*"
-                             "*Compile-Log*"
+(setq my-skippable-buffers '("*Messages*" "*scratch*" "*Help*" "*Completions*"
+                             "*Buffer List*" "*Backtrace*" "*Compile-Log*"
                              "*GNU Emacs*"))
 
 (defun my-change-buffer (change-buffer)
@@ -25,11 +21,11 @@
     (funcall change-buffer)
     (let ((first-change (current-buffer)))
       (catch 'loop
-             (while (member (buffer-name) my-skippable-buffers)
-                    (funcall change-buffer)
-                    (when (eq (current-buffer) first-change)
-                      (switch-to-buffer initial)
-                      (throw 'loop t)))))))
+        (while (member (buffer-name) my-skippable-buffers)
+          (funcall change-buffer)
+          (when (eq (current-buffer) first-change)
+            (switch-to-buffer initial)
+            (throw 'loop t)))))))
 
 (defun my-next-buffer ()
   "`next-buffer' that skips `my-skippable-buffers'."
@@ -60,48 +56,47 @@
   (interactive)
   (find-file user-init-file))
 
-(setq hippie-expand-try-function-list '(try-expand-debbrev
-                                        try-expand-debbrev-all-buffers
-                                        try-expand-debbrev-from-kill
-                                        try-complete-file-name-partially
-                                        try-complete-file-name
-                                        try-expand-all-abbrevs
-                                        try-expand-list
-                                        try-expand-line
-                                        try-complete-lisp-symbol-partially
-                                        try-complete-lisp-symbol))
+(setq hippie-expand-try-function-list '(try-expand-debbrev try-expand-debbrev-all-buffers
+                                                           try-expand-debbrev-from-kill try-complete-file-name-partially
+                                                           try-complete-file-name try-expand-all-abbrevs
+                                                           try-expand-list try-expand-line try-complete-lisp-symbol-partially
+                                                           try-complete-lisp-symbol))
 (setq *is-a-mac* (eq system-type 'darwin))
-(setq *cygwin* (eq system-type 'cygwin) )
-(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+(setq *cygwin* (eq system-type 'cygwin))
+(setq *linux* (or (eq system-type 'gnu/linux)
+                  (eq system-type 'linux)))
 (defun copy-to-x-clipboard ()
   (interactive)
   (if (region-active-p)
       (progn
         (cond
-         ((and (display-graphic-p) x-select-enable-clipboard)
-          (x-set-selection 'CLIPBOARD (buffer-substring (region-beginning) (region-end))))
-         (t (shell-command-on-region (region-beginning) (region-end)
+         ((and (display-graphic-p)
+               x-select-enable-clipboard)
+          (x-set-selection 'CLIPBOARD
+                           (buffer-substring (region-beginning)
+                                             (region-end))))
+         (t (shell-command-on-region (region-beginning)
+                                     (region-end)
                                      (cond
                                       (*cygwin* "putclip")
                                       (*is-a-mac* "pbcopy")
-                                      (*linux* "xsel -ib")))
-            ))
+                                      (*linux* "xsel -ib")))))
         (message "Yanked region to clipboard!")
         (deactivate-mark))
-        (message "No region active; can't yank to clipboard!")))
-(defun paste-from-x-clipboard()
+    (message "No region active; can't yank to clipboard!")))
+(defun paste-from-x-clipboard ()
   (interactive)
   (cond
-   ((and (display-graphic-p) x-select-enable-clipboard)
+   ((and (display-graphic-p)
+         x-select-enable-clipboard)
     (insert (x-get-selection 'CLIPBOARD)))
-   (t (shell-command
-       (cond
-        (*cygwin* "getclip")
-        (*is-a-mac* "pbpaste")
-        (t "xsel -ob"))
-       1))
-   ))
-(setq save-interprogram-paste-before-kill t)
+   (t (shell-command (cond
+                      (*cygwin* "getclip")
+                      (*is-a-mac* "pbpaste")
+                      (t "xsel -ob"))
+                     1))))
+(setq save-interprogram-paste-before-kill
+      t)
 
 ;; (defface font-lock-func-face
 ;;   '((nil (:foreground "#00ffd7" :weight bold))
@@ -121,30 +116,25 @@
   (interactive)
   (cond
    ((= ivy-regex-switch-value 1)
-     (message "Select ivy-regex")
-     (setq ivy-re-builders-alist
-           '((swiper . ivy--regex)
-             (t . ivy--regex-plus)))
-     (setq ivy-regex-switch-value 2))
+    (message "Select ivy-regex")
+    (setq ivy-re-builders-alist '((swiper . ivy--regex)
+                                  (t . ivy--regex-plus)))
+    (setq ivy-regex-switch-value 2))
    ((= ivy-regex-switch-value 2)
-     (message "Select ivy-regex-plus")
-     (setq ivy-re-builders-alist
-           '((swiper . ivy--regex-plus)
-             (t . ivy--regex-plus)))
-     (setq ivy-regex-switch-value 3))
+    (message "Select ivy-regex-plus")
+    (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                                  (t . ivy--regex-plus)))
+    (setq ivy-regex-switch-value 3))
    ((= ivy-regex-switch-value 3)
-     (message "Select ivy-regex-ignore-order")
-     (setq ivy-re-builders-alist
-           '((swiper . ivy--regex-ignore-order)
-             (t . ivy--regex-plus)))
-     (setq ivy-regex-switch-value 4))
+    (message "Select ivy-regex-ignore-order")
+    (setq ivy-re-builders-alist '((swiper . ivy--regex-ignore-order)
+                                  (t . ivy--regex-plus)))
+    (setq ivy-regex-switch-value 4))
    ((= ivy-regex-switch-value 4)
-     (message "Select ivy-regex-fuzzy")
-     (setq ivy-re-builders-alist
-           '((swiper . ivy--regex-fuzzy)
-             (t . ivy--regex-plus)))
-     (setq ivy-regex-switch-value 1))
-    ))
+    (message "Select ivy-regex-fuzzy")
+    (setq ivy-re-builders-alist '((swiper . ivy--regex-fuzzy)
+                                  (t . ivy--regex-plus)))
+    (setq ivy-regex-switch-value 1))))
 
 (setq yc-ag-base-command '"ag --follow --nocolor --nogroup %s")
 (setq yc-ag-arg-context '"ag --follow --nocolor --nogroup -C 2 %s")
@@ -156,63 +146,150 @@
   (interactive)
   (cond
    ((= yc-counsel-ag-arg 1)
-     (message "with %s" yc-ag-base-command)
-     (setq counsel-ag-base-command yc-ag-base-command)
-     (setq yc-counsel-ag-arg 2))
+    (message "with %s" yc-ag-base-command)
+    (setq counsel-ag-base-command yc-ag-base-command)
+    (setq yc-counsel-ag-arg 2))
    ((= yc-counsel-ag-arg 2)
-     (message "with %s" yc-ag-arg-context)
-     (setq counsel-ag-base-command yc-ag-arg-context)
-     (setq yc-counsel-ag-arg 1))
-   ))
+    (message "with %s" yc-ag-arg-context)
+    (setq counsel-ag-base-command yc-ag-arg-context)
+    (setq yc-counsel-ag-arg 1))))
 
-;(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --color never %s ."
-(setq yc-rg-base-command-str   '"rg --no-heading --line-number --color never --follow")
-(setq yc-rg-arg-context-str    '" --context 1")
+                                        ;(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --color never %s ."
+(setq yc-rg-base-command-str '"rg --no-heading --line-number --color never --follow")
+(setq yc-rg-arg-context-str '" --context 1")
 (setq yc-rg-arg-ignorecase-str '" --ignore-case")
-(setq yc-rg-arg-regexp-str     '" --regexp")
+(setq yc-rg-arg-regexp-str '" --regexp")
 (setq yc-rg-arg-value 0)
-(setq yc-rg-cmd-str        yc-rg-base-command-str)
+(setq yc-rg-cmd-str yc-rg-base-command-str)
 
 (defun yc-rg-argument-change ()
   "Doc-string for `counsel-rg-arg rebuild` function."
   (progn
-   (setq yc-rg-cmd-str yc-rg-base-command-str)
-   (if (= (logand yc-rg-arg-value 1) 1) (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-context-str)))
-   (if (= (logand yc-rg-arg-value 2) 2) (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-ignorecase-str)))
-   (if (= (logand yc-rg-arg-value 4) 4) (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-regexp-str)))
-   (setq yc-rg-cmd-str (concat yc-rg-cmd-str " %s"))
-   (message "rg command is: %s" yc-rg-cmd-str)
-   (setq counsel-rg-base-command yc-rg-cmd-str)
-   ))
+    (setq yc-rg-cmd-str yc-rg-base-command-str)
+    (if (= (logand yc-rg-arg-value 1) 1)
+        (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-context-str)))
+    (if (= (logand yc-rg-arg-value 2) 2)
+        (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-ignorecase-str)))
+    (if (= (logand yc-rg-arg-value 4) 4)
+        (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-regexp-str)))
+    (setq yc-rg-cmd-str (concat yc-rg-cmd-str " %s"))
+    (message "rg command is: %s" yc-rg-cmd-str)
+    (setq counsel-rg-base-command yc-rg-cmd-str)))
 
 (defun yc-rg-arg-set (value)
   "Doc-string for `counsel-rg-arg select` function."
   (progn
-    (if (= value 0) (setq yc-rg-arg-value 0))
-    (if (= value 1) (setq yc-rg-arg-value (+ yc-rg-arg-value 1)))
-    (if (= value 2) (setq yc-rg-arg-value (+ yc-rg-arg-value 2)))
-    (if (= value 4) (setq yc-rg-arg-value (+ yc-rg-arg-value 4)))
-    (yc-rg-argument-change) 
-    ))
+    (if (= value 0)
+        (setq yc-rg-arg-value 0))
+    (if (= value 1)
+        (setq yc-rg-arg-value (+ yc-rg-arg-value 1)))
+    (if (= value 2)
+        (setq yc-rg-arg-value (+ yc-rg-arg-value 2)))
+    (if (= value 4)
+        (setq yc-rg-arg-value (+ yc-rg-arg-value 4)))
+    (yc-rg-argument-change)))
 (yc-rg-argument-change)
 
-(defun yc-rg-arg-set-default ()    (interactive) "Doc-string for set default"    (yc-rg-arg-set 0))
-(defun yc-rg-arg-set-context ()    (interactive) "Doc-string for set context"    (yc-rg-arg-set 1))
-(defun yc-rg-arg-set-ignorecase () (interactive) "Doc-string for set ignorecase" (yc-rg-arg-set 2))
-(defun yc-rg-arg-set-regrexp ()    (interactive) "Doc-string for set regrexp"    (yc-rg-arg-set 4))
-(defun yc-rg-arg-show-cmd-str ()   (interactive) "Doc-string for show query cmd" (message "rg command is: %s" counsel-rg-base-command))
+(defun yc-rg-arg-set-default ()
+  (interactive)
+  "Doc-string for set default"
+  (yc-rg-arg-set 0))
+(defun yc-rg-arg-set-context ()
+  (interactive)
+  "Doc-string for set context"
+  (yc-rg-arg-set 1))
+(defun yc-rg-arg-set-ignorecase ()
+  (interactive)
+  "Doc-string for set ignorecase"
+  (yc-rg-arg-set 2))
+(defun yc-rg-arg-set-regrexp ()
+  (interactive)
+  "Doc-string for set regrexp"
+  (yc-rg-arg-set 4))
+(defun yc-rg-arg-show-cmd-str ()
+  (interactive)
+  "Doc-string for show query cmd"
+  (message "rg command is: %s" counsel-rg-base-command))
 
-(setq systemverilog-imenu-generic-expression
-      '(
-        ("class" "^class \\(.+\\)\\( \\)*" 1)
-        ;;("function" "\\( *\\)function\\( +\\)\\(.+\\)\\( +\\)\\(.+\\)" 3)
-        ;;("task" "task \\(.+\\)\\( \\)" 1)
-        ("module" "^module \\(.+\\)\\( \\)" 1)
-        ("interface" "^interface \\(.+\\)\\( \\)" 1)
-       ))
+(setq systemverilog-imenu-generic-expression '(("class" "^class \\(.+\\)\\( \\)*" 1)
+                                               ;;("function" "\\( *\\)function\\( +\\)\\(.+\\)\\( +\\)\\(.+\\)" 3)
+                                               ;;("task" "task \\(.+\\)\\( \\)" 1)
+                                               ("module" "^module \\(.+\\)\\( \\)" 1)
+                                               ("interface" "^interface \\(.+\\)\\( \\)"
+                                                1)))
 
-(add-hook 'verilog-mode-hook (lambda () (setq imenu-generic-expression systemverilog-imenu-generic-expression)))
+(add-hook 'verilog-mode-hook
+          (lambda ()
+            (setq imenu-generic-expression systemverilog-imenu-generic-expression)))
 
+(defpowerline powerline-minor-modes-yc
+  (mapconcat (lambda (mm)
+               (propertize mm
+                           'mouse-face
+                           'mode-line-highlight
+                           'help-echo
+                           "Minor mode\n mouse-1: Display minor mode menu\n mouse-2: Show help for minor mode\n mouse-3: Toggle minor modes"
+                           'local-map
+                           (let ((map (make-sparse-keymap)))
+                             (define-key map [mode-line down-mouse-1] (powerline-mouse 'minor 'menu mm))
+                             (define-key map [mode-line mouse-2] (powerline-mouse 'minor 'help mm))
+                             (define-key map [mode-line down-mouse-3] (powerline-mouse 'minor 'menu mm))
+                             (define-key map [header-line down-mouse-3] (powerline-mouse 'minor 'menu mm))
+                             map)))
+                                        ;(split-string (format-mode-line minor-mode-alist))
+             (split-string "")
+             (propertize " " 'face face)))
+
+(defun yank-browse (string)
+      "Browse the `kill-ring' to choose which entry to yank."
+      (interactive
+       (minibuffer-with-setup-hook #'minibuffer-completion-help
+         (let* ((kills (delete-dups (append kill-ring-yank-pointer kill-ring nil)))
+                (entries
+                 (mapcar (lambda (string)
+                           (let ((pos 0))
+                             ;; FIXME: Maybe we should start by removing
+                             ;; all properties.
+                             (setq string (copy-sequence string))
+                             (while (string-match "\n" string pos)
+                               ;; FIXME: Maybe completion--insert-strings should
+                               ;; do that for us.
+                               (put-text-property
+                                (match-beginning 0) (match-end 0)
+                                'display (eval-when-compile
+                                           (propertize "\\n" 'face 'escape-glyph))
+                                string)
+                               (setq pos (match-end 0)))
+                             ;; FIXME: We may use the window-width of the
+                             ;; wrong window.
+                             (when (>= (* 3 (string-width string))
+                                       (* 2 (window-width)))
+                               (let ((half (- (/ (window-width) 3) 1)))
+                                 ;; FIXME: We're using char-counts rather than
+                                 ;; width-count.
+                                 (put-text-property
+                                  half (- (length string) half)
+                                  'display (eval-when-compile
+                                             (propertize "……" 'face 'escape-glyph))
+                                  string)))
+                             string))
+                         kills))
+                (table (lambda (string pred action)
+                         (cond
+                          ((eq action 'metadata)
+                           '(metadata (category . kill-ring)))
+                          (t
+                           (complete-with-action action entries string pred))))))
+           ;; FIXME: We should return the entry from the kill-ring rather than
+           ;; the entry from the completion-table.
+           ;; FIXME: substring completion doesn't work well because it only matches
+           ;; subtrings before the first \n.
+           ;; FIXME: completion--insert-strings assumes that boundaries of
+           ;; candidates are obvious enough, but with kill-ring entries this is not
+           ;; true, so we'd probably want to display them with «...» around them.
+           (list (completing-read "Yank: " table nil t)))))
+      (setq this-command 'yank)
+      (insert-for-yank string))
 ;;------------------------------------------------------------------------------
 ;; Configuration
 (setq x-select-enable-clipboard t)
@@ -284,23 +361,26 @@
           (lambda ()
             (counsel-gtags-mode t)))
 
-(add-to-list 'auto-mode-alist '("\\.svi\\'" . verilog-mode))
-(add-to-list 'auto-mode-alist '("\\.svip\\'" . verilog-mode))
-(add-to-list 'auto-mode-alist '("\\.inc\\'" . verilog-mode))
+(add-to-list 'auto-mode-alist
+             '("\\.svi\\'" . verilog-mode))
+(add-to-list 'auto-mode-alist
+             '("\\.svip\\'" . verilog-mode))
+(add-to-list 'auto-mode-alist
+             '("\\.inc\\'" . verilog-mode))
 
 (setq kill-buffer-query-functions (remq 'process-kill-buffer-query-function
                                         kill-buffer-query-functions))
 (put 'dired-find-alternate-file 'disabled
      nil)
 (with-eval-after-load 'dired
-                      (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file))
+  (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file))
 
 (require 'verilog-mode)
 (setq verilog-auto-newline nil)
 
 (setq bookmark-default-file "~/.emacs.d/bookmarks"
       bookmark-save-flag 1)
-  
+
 
 ;;------------------------------------------------------------------------------
 ;; Packages
@@ -322,7 +402,13 @@
 
 ;;(require 'darkokai-theme)
 ;;(load-theme 'darkokai t)
-(load-theme 'sanityinc-tomorrow-night t)
+;;(load-theme 'sanityinc-tomorrow-night t)
+;;(load-theme 'sanityinc-tomorrow-eighties t)
+(load-theme 'noctilux t)
+
+(require 'airline-themes)
+(defalias 'powerline-minor-modes 'powerline-minor-modes-yc)
+(load-theme 'airline-badwolf t)
 
 (require 'ivy)
 (ivy-mode 1)
@@ -331,11 +417,17 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ivy-highlight-face ((t (:background "#FFFFFF")))))
-
-
-(require 'airline-themes)
-(load-theme 'airline-cool t)
+ '(evil-goggles-delete-face ((t (:inherit (quote diff-removed)))))
+ '(evil-goggles-paste-face ((t (:inherit (quote diff-added)))))
+ '(evil-goggles-undo-redo-add-face ((t (:inherit (quote diff-refine-added)))))
+ '(evil-goggles-undo-redo-change-face ((t (:inherit (quote diff-changed)))))
+ '(evil-goggles-undo-redo-remove-face ((t (:inherit (quote diff-refine-removed)))))
+ '(evil-goggles-yank-face ((t (:inherit (quote diff-changed)))))
+ '(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
+ '(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
+ '(ivy-highlight-face ((t (:background "color-24"))))
+ '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
+ '(ivy-minibuffer-match-face-1 ((t (:background "color-28")))))
 
 (setq airline-utf-glyph-separator-left #xe0b0
       airline-utf-glyph-separator-right #xe0b2 airline-utf-glyph-subseparator-left
@@ -378,35 +470,40 @@
 (evil-mode 1)
 
 (with-eval-after-load 'evil
-                      (require 'evil-anzu)
-                      (require 'evil-mc)
-                      (global-evil-mc-mode 1)
-                      (defalias #'forward-evil-word #'forward-evil-symbol)
-                      (define-key evil-motion-state-map "\\" 'swiper)
-                      (remove-hook 'evil-insert-state-exit-hook 'expand-abbrev t)
-
-                      (evil-define-motion evil-yc-jump-down
-                                          ()
-                                          :type line
-                                          :jump t
-                                          "Evil motion down 4 line. Count has no effect."
-                                          (forward-line 4))
-                      (evil-define-motion evil-yc-jump-up
-                                          ()
-                                          :type line
-                                          :jump t
-                                          "Evil motion up 4 line. Count has no effect."
-                                          (forward-line -4))
-                      ;; example mapping
-                      (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
-                      (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
-                      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-                      (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
-                      (evil-ex-define-cmd "Wqa" "wqall")
-                      (evil-ex-define-cmd "W" "write")
-                      (evil-ex-define-cmd "Wall" 'evil-write-all)
-                      (evil-ex-define-cmd "Wa" "wall")
-                      )
+  (require 'evil-anzu)
+  ;;(require 'evil-multiedit)
+  ;;(evil-multiedit-default-keybinds)
+  (require 'evil-mc)
+  (global-evil-mc-mode 1)
+  (require 'evil-goggles)
+  (evil-goggles-mode)
+  (evil-goggles-use-diff-faces)
+  (setq evil-goggles-duration 0.100)
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+  (define-key evil-motion-state-map "\\" 'swiper)
+  (remove-hook 'evil-insert-state-exit-hook
+               'expand-abbrev t)
+  (evil-define-motion evil-yc-jump-down
+    ()
+    :type line
+    :jump t
+    "Evil motion down 4 line. Count has no effect."
+    (forward-line 4))
+  (evil-define-motion evil-yc-jump-up
+    ()
+    :type line
+    :jump t
+    "Evil motion up 4 line. Count has no effect."
+    (forward-line -4))
+  ;; example mapping
+  (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
+  (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
+  (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+  (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
+  (evil-ex-define-cmd "Wqa" "wqall")
+  (evil-ex-define-cmd "W" "write")
+  (evil-ex-define-cmd "Wall" 'evil-write-all)
+  (evil-ex-define-cmd "Wa" "wall"))
 
 (require 'ace-window)
 (setq aw-dispatch-always t)
@@ -455,22 +552,22 @@
 
 ;; company-irony
 (eval-after-load 'company
-                 '(add-to-list 'company-backends 'company-irony))
+  '(add-to-list 'company-backends 'company-irony))
 (add-hook 'c-mode-hook 'company-mode)
 (add-hook 'c++-mode-hook 'company-mode)
 
 (require 'company-irony-c-headers)
 (eval-after-load 'company
-                 '(add-to-list 'company-backends
-                               '(company-irony-c-headers company-irony)))
+  '(add-to-list 'company-backends
+                '(company-irony-c-headers company-irony)))
 (eval-after-load 'flycheck
-                 '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
 (require 'smooth-scrolling)
 (smooth-scrolling-mode 1)
-(setq smooth-scroll-margin 3)
-(setq scroll-setup 1
-      scroll-conservatively 1000)
+(setq smooth-scroll-margin 1)
+(setq scroll-setup 1 scroll-conservatively
+      1000)
 
 ;;------------------------------------------------------------------------------
 ;;key binding
@@ -489,6 +586,8 @@
                 'er/expand-region)
 (global-set-key (kbd "M-6")
                 'ivy-occur)
+(global-set-key (kbd "M-4")
+                'evil-mc-undo-all-cursors)
 (global-set-key (kbd "M-9")
                 'shrink-window)
 (global-set-key (kbd "M-=")
@@ -509,6 +608,8 @@
 (define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 (define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 (define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
 
 ;;(global-set-key [escape] 'evil-exit-emacs-state)
 
@@ -521,37 +622,26 @@
 (global-evil-leader-mode)
 
 (evil-leader/set-leader "<SPC>")
-(evil-leader/set-key
-  "aa" 'counsel-rg
-  "m" 'counsel-bookmark
-  "@" 'counsel-imenu
-  "fg" 'counsel-git
-  "ff" 'counsel-find-file
-  "ar" 'yc-rg-arg-set-default
-  "ai" 'yc-rg-arg-set-ignorecase
-  "ac" 'yc-rg-arg-set-context
-  "ae" 'yc-rg-arg-set-regrexp
-  "as" 'yc-rg-arg-show-cmd-str
-  "rr" 'ivy-regex-switch
-  "ts" 'counsel-gtags-find-symbol
-  "tr" 'counsel-gtags-find-reference
-  "td" 'counsel-gtags-find-definition
-  "ci" 'evilnc-comment-or-uncomment-lines
-  "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
-  "gc" 'wgrep-finish-edit
-  "xc" 'copy-to-x-clipboard
-  "xp" 'paste-from-x-clipboard
-  "bl" 'ivy-switch-buffer
-  "bb" 'ace-jump-buffer
-  "bd" 'kill-buffer
-  "bo" 'ivy-switch-buffer-other-window
-  "s" 'swap-buffers-in-windows
+(evil-leader/set-key "aa" 'counsel-rg "m"
+  'counsel-bookmark "@" 'counsel-imenu "fg"
+  'counsel-git "ff" 'counsel-find-file "ar"
+  'yc-rg-arg-set-default "ai" 'yc-rg-arg-set-ignorecase
+  "ac" 'yc-rg-arg-set-context "ae" 'yc-rg-arg-set-regrexp
+  "as" 'yc-rg-arg-show-cmd-str "rr" 'ivy-regex-switch
+  "ts" 'counsel-gtags-find-symbol "tr" 'counsel-gtags-find-reference
+  "td" 'counsel-gtags-find-definition "ci" 'evilnc-comment-or-uncomment-lines
+  "gm" 'ivy-wgrep-chtnge-to-wgrep-mode "gc"
+  'wgrep-finish-edit "xc" 'copy-to-x-clipboard
+  "xp" 'paste-from-x-clipboard "bl" 'ivy-switch-buffer
+  "bb" 'ace-jump-buffer "bd" 'kill-buffer "bo"
+  'ivy-switch-buffer-other-window "s" 'swap-buffers-in-windows
   "w" 'ace-window
-  )
+  "y" 'yank-browse)
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 (require 'yasnippet)
 (yas-global-mode 1)
+
 
 ;;------------------------------------------------------------------------------
 (custom-set-variables
@@ -559,54 +649,66 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default bold shadow italic underline bold bold-italic bold])
- '(ansi-color-names-vector
-   (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
+ '(ansi-color-faces-vector [default bold shadow italic underline bold
+                             bold-italic bold])
+ '(ansi-color-names-vector (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674"
+                                   "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(compilation-message-face (quote default))
- '(custom-safe-themes
-   (quote
-    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
+ '(custom-safe-themes (quote ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a"
+                              "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b"
+                              default)))
  '(fci-rule-color "#373b41")
+ '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
- '(highlight-tail-colors
-   (quote
-    (("#424748" 0.0)
-     ("#63de5d" 0.2)
-     ("#4BBEAE" 0.3)
-     ("#9A8F21" 0.6)
-     ("#A75B00" 0.7)
-     ("#F309DF" 0.85)
-     ("#424748" 0.1))))
+ '(highlight-tail-colors (quote (("#424748" 0.0)
+                                 ("#63de5d" 0.2)
+                                 ("#4BBEAE" 0.3)
+                                 ("#9A8F21" 0.6)
+                                 ("#A75B00" 0.7)
+                                 ("#F309DF" 0.85)
+                                 ("#424748" 0.1))))
  '(ivy-mode t)
  '(magit-diff-use-overlays nil)
- '(package-selected-packages
-   (quote
-    (csv-mode ripgrep icicles smooth-scrolling vlf color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow wgrep rainbow-mode cycle-themes adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-mc evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
+ '(package-selected-packages (quote (noctilux-theme ample-theme ample-zen-theme
+                                                    cyberpunk-theme material-theme moe-theme darkokai-theme
+                                                    monokai-alt-theme monokai-theme evil-numbers
+                                                    evil-mc evil-goggles evil-quickscope evil-surround
+                                                    csv-mode ripgrep icicles smooth-scrolling
+                                                    vlf color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow
+                                                    wgrep rainbow-mode cycle-themes adaptive-wrap
+                                                    counsel-gtags ivy yasnippet highlight-defined
+                                                    srefactor slime-company slime-theme slime
+                                                    use-package evil-nerd-commenter elisp-format
+                                                    whitespace-cleanup-mode rainbow-delimiters
+                                                    iedit highlight-symbol highlight-quoted highlight-parentheses
+                                                    highlight-operators highlight-numbers grizzl
+                                                    git-gutter git-gutter+ flycheck-irony expand-region
+                                                    evil-visualstar evil-smartparens evil-leader
+                                                    evil-anzu company-irony-c-headers company-irony
+                                                    clang-format autopair airline-themes ace-window
+                                                    ace-jump-buffer)))
  '(pos-tip-background-color "#E6DB74")
  '(pos-tip-foreground-color "#242728")
  '(vc-annotate-background nil)
- '(vc-annotate-color-map
-   (quote
-    ((20 . "#cc6666")
-     (40 . "#de935f")
-     (60 . "#f0c674")
-     (80 . "#b5bd68")
-     (100 . "#8abeb7")
-     (120 . "#81a2be")
-     (140 . "#b294bb")
-     (160 . "#cc6666")
-     (180 . "#de935f")
-     (200 . "#f0c674")
-     (220 . "#b5bd68")
-     (240 . "#8abeb7")
-     (260 . "#81a2be")
-     (280 . "#b294bb")
-     (300 . "#cc6666")
-     (320 . "#de935f")
-     (340 . "#f0c674")
-     (360 . "#b5bd68"))))
+ '(vc-annotate-color-map (quote ((20 . "#cc6666")
+                                 (40 . "#de935f")
+                                 (60 . "#f0c674")
+                                 (80 . "#b5bd68")
+                                 (100 . "#8abeb7")
+                                 (120 . "#81a2be")
+                                 (140 . "#b294bb")
+                                 (160 . "#cc6666")
+                                 (180 . "#de935f")
+                                 (200 . "#f0c674")
+                                 (220 . "#b5bd68")
+                                 (240 . "#8abeb7")
+                                 (260 . "#81a2be")
+                                 (280 . "#b294bb")
+                                 (300 . "#cc6666")
+                                 (320 . "#de935f")
+                                 (340 . "#f0c674")
+                                 (360 . "#b5bd68"))))
  '(vc-annotate-very-old-color nil)
  '(verilog-align-ifelse t)
  '(verilog-auto-delete-trailing-whitespace t)
@@ -625,5 +727,7 @@
  '(verilog-indent-level-declaration 2)
  '(verilog-indent-level-module 2)
  '(verilog-tab-to-comment nil)
- '(weechat-color-list
-   (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
+ '(weechat-color-list (unspecified "#242728" "#424748" "#F70057"
+                                   "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74"
+                                   "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac"
+                                   "#53f2dc" "#f8fbfc" "#ffffff")))
