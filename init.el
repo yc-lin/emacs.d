@@ -292,6 +292,7 @@
       (insert-for-yank string))
 ;;------------------------------------------------------------------------------
 ;; Configuration
+(set-frame-font "Dejavu Sans Mono for Powerline 9" nil t)
 (setq x-select-enable-clipboard t)
 (setq inhibit-startup-screen t)
 (setq make-backup-files nil)
@@ -306,9 +307,9 @@
 (when (featurep 'menu-bar)
   (menu-bar-mode -1))
 (when (featurep 'tool-bar)
-  (menu-bar-mode -1))
+  (tool-bar-mode -1))
 (when (featurep 'scroll-bar)
-  (menu-bar-mode -1))
+  (scroll-bar-mode -1))
 (font-lock-add-keywords 'c-mode
                         '(("\\<\\(\\sw+\\) ?(" 1 'font-lock-function-name-face)))
 
@@ -417,12 +418,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(evil-goggles-delete-face ((t (:inherit (quote diff-removed)))))
- '(evil-goggles-paste-face ((t (:inherit (quote diff-added)))))
- '(evil-goggles-undo-redo-add-face ((t (:inherit (quote diff-refine-added)))))
- '(evil-goggles-undo-redo-change-face ((t (:inherit (quote diff-changed)))))
- '(evil-goggles-undo-redo-remove-face ((t (:inherit (quote diff-refine-removed)))))
- '(evil-goggles-yank-face ((t (:inherit (quote diff-changed)))))
  '(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
  '(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
  '(ivy-highlight-face ((t (:background "color-24"))))
@@ -475,9 +470,6 @@
   ;;(evil-multiedit-default-keybinds)
   (require 'evil-mc)
   (global-evil-mc-mode 1)
-  (require 'evil-goggles)
-  (evil-goggles-mode)
-  (evil-goggles-use-diff-faces)
   (setq evil-goggles-duration 0.100)
   (defalias #'forward-evil-word #'forward-evil-symbol)
   (define-key evil-motion-state-map "\\" 'swiper)
@@ -649,85 +641,80 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector [default bold shadow italic underline bold
-                             bold-italic bold])
- '(ansi-color-names-vector (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674"
-                                   "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(compilation-message-face (quote default))
- '(custom-safe-themes (quote ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a"
-                              "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b"
-                              default)))
+ '(custom-safe-themes
+   (quote
+    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
  '(fci-rule-color "#373b41")
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
- '(highlight-tail-colors (quote (("#424748" 0.0)
-                                 ("#63de5d" 0.2)
-                                 ("#4BBEAE" 0.3)
-                                 ("#9A8F21" 0.6)
-                                 ("#A75B00" 0.7)
-                                 ("#F309DF" 0.85)
-                                 ("#424748" 0.1))))
+ '(highlight-tail-colors
+   (quote
+    (("#424748" 0.0)
+     ("#63de5d" 0.2)
+     ("#4BBEAE" 0.3)
+     ("#9A8F21" 0.6)
+     ("#A75B00" 0.7)
+     ("#F309DF" 0.85)
+     ("#424748" 0.1))))
  '(ivy-mode t)
  '(magit-diff-use-overlays nil)
- '(package-selected-packages (quote (noctilux-theme ample-theme ample-zen-theme
-                                                    cyberpunk-theme material-theme moe-theme darkokai-theme
-                                                    monokai-alt-theme monokai-theme evil-numbers
-                                                    evil-mc evil-goggles evil-quickscope evil-surround
-                                                    csv-mode ripgrep icicles smooth-scrolling
-                                                    vlf color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow
-                                                    wgrep rainbow-mode cycle-themes adaptive-wrap
-                                                    counsel-gtags ivy yasnippet highlight-defined
-                                                    srefactor slime-company slime-theme slime
-                                                    use-package evil-nerd-commenter elisp-format
-                                                    whitespace-cleanup-mode rainbow-delimiters
-                                                    iedit highlight-symbol highlight-quoted highlight-parentheses
-                                                    highlight-operators highlight-numbers grizzl
-                                                    git-gutter git-gutter+ flycheck-irony expand-region
-                                                    evil-visualstar evil-smartparens evil-leader
-                                                    evil-anzu company-irony-c-headers company-irony
-                                                    clang-format autopair airline-themes ace-window
-                                                    ace-jump-buffer)))
+ '(package-selected-packages
+   (quote
+    (noctilux-theme evil-numbers evil-mc evil-quickscope evil-surround csv-mode ripgrep icicles smooth-scrolling vlf wgrep rainbow-mode adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
  '(pos-tip-background-color "#E6DB74")
  '(pos-tip-foreground-color "#242728")
  '(vc-annotate-background nil)
- '(vc-annotate-color-map (quote ((20 . "#cc6666")
-                                 (40 . "#de935f")
-                                 (60 . "#f0c674")
-                                 (80 . "#b5bd68")
-                                 (100 . "#8abeb7")
-                                 (120 . "#81a2be")
-                                 (140 . "#b294bb")
-                                 (160 . "#cc6666")
-                                 (180 . "#de935f")
-                                 (200 . "#f0c674")
-                                 (220 . "#b5bd68")
-                                 (240 . "#8abeb7")
-                                 (260 . "#81a2be")
-                                 (280 . "#b294bb")
-                                 (300 . "#cc6666")
-                                 (320 . "#de935f")
-                                 (340 . "#f0c674")
-                                 (360 . "#b5bd68"))))
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#cc6666")
+     (40 . "#de935f")
+     (60 . "#f0c674")
+     (80 . "#b5bd68")
+     (100 . "#8abeb7")
+     (120 . "#81a2be")
+     (140 . "#b294bb")
+     (160 . "#cc6666")
+     (180 . "#de935f")
+     (200 . "#f0c674")
+     (220 . "#b5bd68")
+     (240 . "#8abeb7")
+     (260 . "#81a2be")
+     (280 . "#b294bb")
+     (300 . "#cc6666")
+     (320 . "#de935f")
+     (340 . "#f0c674")
+     (360 . "#b5bd68"))))
  '(vc-annotate-very-old-color nil)
  '(verilog-align-ifelse t)
- '(verilog-auto-delete-trailing-whitespace t)
+ '(verilog-auto-arg-format (quote single))
+ '(verilog-auto-delete-trailing-whitespace nil)
+ '(verilog-auto-endcomments nil)
+ '(verilog-auto-ignore-concat t)
+ '(verilog-auto-indent-on-newline t)
  '(verilog-auto-inst-param-value t)
  '(verilog-auto-inst-vector nil)
- '(verilog-auto-lineup (quote all))
+ '(verilog-auto-lineup (quote ignore))
  '(verilog-auto-newline nil)
  '(verilog-auto-save-policy nil)
+ '(verilog-auto-star-expand nil)
  '(verilog-auto-template-warn-unused t)
  '(verilog-case-indent 2)
  '(verilog-cexp-indent 2)
  '(verilog-highlight-grouping-keywords t)
  '(verilog-highlight-modules t)
+ '(verilog-indent-begin-after-if t)
+ '(verilog-indent-declaration-macros t)
  '(verilog-indent-level 2)
  '(verilog-indent-level-behavioral 2)
  '(verilog-indent-level-declaration 2)
  '(verilog-indent-level-module 2)
- '(verilog-tab-to-comment nil)
- '(weechat-color-list (unspecified "#242728" "#424748" "#F70057"
-                                   "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74"
-                                   "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac"
-                                   "#53f2dc" "#f8fbfc" "#ffffff")))
+ '(verilog-indent-lists t)
+ '(verilog-tab-to-comment t)
+ '(weechat-color-list
+   (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
