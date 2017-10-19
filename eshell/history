@@ -1,0 +1,14 @@
+ls
+sss
+cd ..
+ls
+cd ..
+ls
+cd ..
+ls
+source env.sh 
+ls
+ls
+cat env.sh 
+ls
+source env.sh
