@@ -6,12 +6,12 @@
 (add-to-list 'package-archives
              '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
              t)
-(add-to-list 'load-path "~/.emacs.d/pkg/")
+(add-to-list 'load-path "/home/yclin/.emacs.d/pkg/")
 
 
 ;;------------------------------------------------------------------------------
 ;; custom Script
-(setq my-skippable-buffers '("*Messages*" "*scratch*" "*Help*" "*Completions*"
+(setq my-skippable-buffers '("*Messages*" "*Help*" "*Completions*"
                              "*Buffer List*" "*Backtrace*" "*Compile-Log*"
                              "*GNU Emacs*"))
 
@@ -84,6 +84,7 @@
         (message "Yanked region to clipboard!")
         (deactivate-mark))
     (message "No region active; can't yank to clipboard!")))
+
 (defun paste-from-x-clipboard ()
   (interactive)
   (cond
@@ -322,12 +323,14 @@
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
 (add-hook 'emacs-lisp-mode-hook 'highlight-defined-mode)
+;;(add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
             (global-set-key (kbd "M-7")
                             'srefactor-lisp-format-buffer)))
 (add-hook 'lisp-mode-hook 'highlight-defined-mode)
+;;(add-hook 'lisp-mode-hook 'parinfer-mode)
 (add-hook 'lisp-mode
           (lambda ()
             (global-set-key (kbd "M-7")
@@ -392,6 +395,30 @@
 (setq slime-contribs '(slime-scratch slime-editing-commands slime-cl-indent))
 (slime-setup '(slime-fancy slime-company slime-cl-indent))
 
+(defvar ac-slime-modes
+  '(lisp-mode))
+
+(defun ac-slime-candidates ()
+  "Complete candidates of the symbol at point."
+  (if (memq major-mode ac-slime-modes)
+      (let* ((end (point))
+             (beg (slime-symbol-start-pos))
+             (prefix (buffer-substring-no-properties beg end))
+             (result (slime-simple-completions prefix)))
+        (destructuring-bind (completions partial) result
+          completions))))
+
+(defvar ac-source-slime
+  '((candidates . ac-slime-candidates)
+    (requires-num . 3)))
+
+(ac-config-default)
+
+(add-hook 'lisp-mode-hook (lambda ()
+                            (slime-mode t)
+                            (push 'ac-source-slime ac-sources)
+                                (auto-complete-mode)))
+
 (require 'srefactor)
 (require 'srefactor-lisp)
 
@@ -405,7 +432,12 @@
 ;;(load-theme 'darkokai t)
 ;;(load-theme 'sanityinc-tomorrow-night t)
 ;;(load-theme 'sanityinc-tomorrow-eighties t)
-(load-theme 'noctilux t)
+;;(load-theme 'noctilux t)
+(load-theme 'material t)
+;;(load-theme 'noctilux t)
+;
+;(require 'material)
+;(load-theme 'material t)
 
 (require 'airline-themes)
 (defalias 'powerline-minor-modes 'powerline-minor-modes-yc)
@@ -466,6 +498,8 @@
 
 (with-eval-after-load 'evil
   (require 'evil-anzu)
+  (require 'evil-snipe)
+  (evil-snipe-override-mode 1)
   ;;(require 'evil-multiedit)
   ;;(evil-multiedit-default-keybinds)
   (require 'evil-mc)
@@ -568,18 +602,18 @@
 (global-set-key [remap previous-buffer]
                 'my-previous-buffer)
 
-(global-set-key (kbd "M-1")
+(global-set-key (kbd "M-w")
                 'next-multiframe-window)
-(global-set-key (kbd "M-2")
+(global-set-key (kbd "M-1")
                 'my-previous-buffer)
-(global-set-key (kbd "M-3")
+(global-set-key (kbd "M-2")
                 'my-next-buffer)
+(global-set-key (kbd "M-4")
+                'evil-mc-undo-all-cursors)
 (global-set-key (kbd "M-5")
                 'er/expand-region)
 (global-set-key (kbd "M-6")
                 'ivy-occur)
-(global-set-key (kbd "M-4")
-                'evil-mc-undo-all-cursors)
 (global-set-key (kbd "M-9")
                 'shrink-window)
 (global-set-key (kbd "M-=")
@@ -588,6 +622,7 @@
                 'shrink-window-horizontally)
 (global-set-key (kbd "M-0")
                 'enlarge-window)
+
 
 ;;(define-key evil-normal-state-map [escape] 'keyboard-quit)
 ;;(define-key evil-visual-state-map [escape] 'keyboard-quit)
@@ -645,13 +680,17 @@
    [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
    (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
+ '(background-color "#202020")
+ '(background-mode dark)
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(compilation-message-face (quote default))
+ '(cursor-color "#cccccc")
  '(custom-safe-themes
    (quote
-    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
+    ("4980e5ddaae985e4bae004280bd343721271ebb28f22b3e3b2427443e748cd3f" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
  '(fci-rule-color "#373b41")
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
+ '(foreground-color "#cccccc")
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
  '(highlight-tail-colors
    (quote
@@ -666,7 +705,7 @@
  '(magit-diff-use-overlays nil)
  '(package-selected-packages
    (quote
-    (noctilux-theme evil-numbers evil-mc evil-quickscope evil-surround csv-mode ripgrep icicles smooth-scrolling vlf wgrep rainbow-mode adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
+    (ac-slime parinfer evil-snipe selected eyebrowse noctilux-theme evil-numbers evil-mc evil-quickscope evil-surround csv-mode ripgrep icicles smooth-scrolling vlf wgrep rainbow-mode adaptive-wrap counsel-gtags ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-leader evil-anzu company-irony-c-headers company-irony clang-format autopair airline-themes ace-window ace-jump-buffer)))
  '(pos-tip-background-color "#E6DB74")
  '(pos-tip-foreground-color "#242728")
  '(vc-annotate-background nil)
