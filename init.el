@@ -8,33 +8,37 @@
              t)
 (add-to-list 'load-path "/home/yclin/.emacs.d/pkg/")
 
+
 ;;------------------------------------------------------------------------------
 ;; custom Script
-(setq my-skippable-buffers '("*Messages*" "*Help*" "*Completions*"
+(setq yc-skippable-buffers '("*Messages*" "*Help*" "*Completions*"
                              "*Buffer List*" "*Backtrace*" "*Compile-Log*"
-                             "*GNU Emacs*"))
+                             "*GNU Emacs*" "*scratch*"
+                             "*lsp-cquery stderr*"
+                             "*lsp-cquery stderr*<2>"
+                             "*xref*"))
 
-(defun my-change-buffer (change-buffer)
-  "Call CHANGE-BUFFER until current buffer is not in `my-skippable-buffers'."
+(defun yc-change-buffer (change-buffer)
+  "Call CHANGE-BUFFER until current buffer is not in `yc-skippable-buffers'."
   (let ((initial (current-buffer)))
     (funcall change-buffer)
     (let ((first-change (current-buffer)))
       (catch 'loop
-        (while (member (buffer-name) my-skippable-buffers)
+        (while (member (buffer-name) yc-skippable-buffers)
           (funcall change-buffer)
           (when (eq (current-buffer) first-change)
             (switch-to-buffer initial)
             (throw 'loop t)))))))
 
-(defun my-next-buffer ()
-  "`next-buffer' that skips `my-skippable-buffers'."
+(defun yc-next-buffer ()
+  "`next-buffer' that skips `yc-skippable-buffers'."
   (interactive)
-  (my-change-buffer 'next-buffer))
+  (yc-change-buffer 'next-buffer))
 
-(defun my-previous-buffer ()
-  "`previous-buffer' that skips `my-skippable-buffers'."
+(defun yc-previous-buffer ()
+  "`previous-buffer' that skips `yc-skippable-buffers'."
   (interactive)
-  (my-change-buffer 'previous-buffer))
+  (yc-change-buffer 'previous-buffer))
 
 (defun my-linux-kernel-style ()
   (interactive)
@@ -156,9 +160,11 @@
 
                                         ;(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --color never %s ."
 (setq yc-rg-base-command-str '"rg --no-heading --line-number --color never --follow")
+(setq yc-rg-base-command-str '"rg --no-heading --line-number --color never ")
 (setq yc-rg-arg-context-str '" --context 1")
 (setq yc-rg-arg-ignorecase-str '" --ignore-case")
 (setq yc-rg-arg-regexp-str '" --regexp")
+(setq yc-rg-arg-follow-str '" --follow")
 (setq yc-rg-arg-value 0)
 (setq yc-rg-cmd-str yc-rg-base-command-str)
 
@@ -172,6 +178,8 @@
         (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-ignorecase-str)))
     (if (= (logand yc-rg-arg-value 4) 4)
         (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-regexp-str)))
+    (if (= (logand yc-rg-arg-value 4) 8)
+        (setq yc-rg-cmd-str (concat yc-rg-cmd-str yc-rg-arg-follow-str)))
     (setq yc-rg-cmd-str (concat yc-rg-cmd-str " %s"))
     (message "rg command is: %s" yc-rg-cmd-str)
     (setq counsel-rg-base-command yc-rg-cmd-str)))
@@ -187,6 +195,8 @@
         (setq yc-rg-arg-value (+ yc-rg-arg-value 2)))
     (if (= value 4)
         (setq yc-rg-arg-value (+ yc-rg-arg-value 4)))
+    (if (= value 8)
+        (setq yc-rg-arg-value (+ yc-rg-arg-value 8)))
     (yc-rg-argument-change)))
 (yc-rg-argument-change)
 
@@ -206,6 +216,10 @@
   (interactive)
   "Doc-string for set regrexp"
   (yc-rg-arg-set 4))
+(defun yc-rg-arg-set-follow ()
+  (interactive)
+  "Doc-string for set follow"
+  (yc-rg-arg-set 8))
 (defun yc-rg-arg-show-cmd-str ()
   (interactive)
   "Doc-string for show query cmd"
@@ -334,15 +348,15 @@
           (lambda ()
             (global-set-key (kbd "M-7")
                             'srefactor-lisp-format-buffer)))
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (global-set-key (kbd "M-7")
-                            'clang-format-buffer)))
+;; (add-hook 'c++-mode-hook
+;;           (lambda ()
+;;             (global-set-key (kbd "M-7")
+;;                             'clang-format-buffer)))
 
-(add-hook 'c-mode-hook
-          (lambda ()
-            (global-set-key (kbd "M-7")
-                            'clang-format-buffer)))
+;; (add-hook 'c-mode-hook
+;;           (lambda ()
+;;             (global-set-key (kbd "M-7")
+;;                             'clang-format-buffer)))
 
 (add-hook 'c-mode-common-hook
           (lambda ()
@@ -406,26 +420,10 @@
                             (push 'ac-source-slime ac-sources)
                                 (auto-complete-mode)))
 
-(require 'srefactor)
-(require 'srefactor-lisp)
-
-(require 'tramp)
-(setq tramp-verbose 2)
-
 (require 'cc-mode)
 (setq c-default-style "k&r")
 
-;;(require 'darkokai-theme)
-;;(load-theme 'darkokai t)
-;;(load-theme 'sanityinc-tomorrow-night t)
-;;(load-theme 'sanityinc-tomorrow-eighties t)
-;;(load-theme 'noctilux t)
 (load-theme 'material t)
-;;(load-theme 'noctilux t)
-;
-;(require 'material)
-;(load-theme 'material t)
-
 (require 'airline-themes)
 (defalias 'powerline-minor-modes 'powerline-minor-modes-yc)
 (load-theme 'airline-badwolf t)
@@ -437,17 +435,21 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(evil-mc-region-face ((t (:inherit region))))
  '(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
  '(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
  '(ivy-highlight-face ((t (:background "color-24"))))
  '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
- '(ivy-minibuffer-match-face-1 ((t (:background "color-28")))))
+ '(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
+ '(region ((t (:background "color-22")))))
 
 (setq airline-utf-glyph-separator-left #xe0b0
-      airline-utf-glyph-separator-right #xe0b2 airline-utf-glyph-subseparator-left
-      #xe0b1 airline-utf-glyph-subseparator-right
-      #xe0b3 airline-utf-glyph-branch #xe0a0 airline-utf-glyph-readonly
-      #xe0a2 airline-utf-glyph-linenumber #xe0a1)
+      airline-utf-glyph-separator-right #xe0b2
+      airline-utf-glyph-subseparator-left #xe0b1
+      airline-utf-glyph-subseparator-right #xe0b3
+      airline-utf-glyph-branch #xe0a0
+      airline-utf-glyph-readonly #xe0a2
+      airline-utf-glyph-linenumber #xe0a1)
 
 
 (require 'highlight-numbers)
@@ -463,9 +465,6 @@
 (show-paren-mode t)
 (setq show-paren-delay 0)
 (set-face-foreground 'show-paren-match "#00aF00")
-
-;; (require 'autopair)
-;; (autopair-global-mode)
 
 (require 'expand-region)
 
@@ -483,8 +482,6 @@
   (require 'evil-anzu)
   (require 'evil-snipe)
   (evil-snipe-override-mode 1)
-  ;;(require 'evil-multiedit)
-  ;;(evil-multiedit-default-keybinds)
   (require 'evil-mc)
   (global-evil-mc-mode 1)
   (setq evil-goggles-duration 0.100)
@@ -531,10 +528,10 @@
 
 (require 'clang-format)
 (setq clang-format-style "Google")
-;; (add-hook 'c-mode-hook
-;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
-;; (add-hook 'c++-mode-hook
-;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+(add-hook 'c-mode-hook
+	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+(add-hook 'c++-mode-hook
+	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
 
 ;;company
 (require 'company)
@@ -543,84 +540,58 @@
 (setq company-minimum-prefix-length 1)
 (setq company-dabbrev-other-buffers t)
 (setq company-dabbrev-code-other-buffers 'all)
+;(setq company-backends '((company-dabbrev-code company-gtags)))
 
 (require 'company-lsp)
 (push 'company-lsp company-backends)
-(setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
 
-
-
-(require 'cquery)
 (setq cquery-executable "/home/yclin/repo/cquery/bin/cquery")
-(setq cquery-extra-init-params '(:completion (:detailedLabel t)))
-;(setq lsp-print-io t)
+;(setq cquery-extra-args '("--log-file=/tmp/cq.log"))
+(setq cquery-cache-dir "/tmp/cq_cache")
 
-;(setq cquery-extra-init-params '(:extraClangArguments ("-I/home/yclin/work/test/inc")))
-;(setq cquery-extra-init-params '(:projectRoot (".cquery")))
-
-(setq cquery-project-roots '(".git" ".cquery"))
-
-(defun yclin-cquery-enable ()
+(defun cquery//enable ()
   (condition-case nil
       (lsp-cquery-enable)
-      (user-error nil))
-  )
+    (user-error nil)))
 
 (use-package cquery
   :commands lsp-cquery-enable
-  :init (add-hook 'c-mode-common-hook #'yclin-cquery-enable))
+  :init (add-hook 'c-mode-common-hook #'cquery//enable))
 
-;; (require 'projectile)
-;; (projectile-global-mode)
-;; (add-to-list 'projectile-globally-ignored-directories ".cquery_cached_index")
-;; (add-to-list 'projectile-project-root ".cquery")
-;; (add-to-list 'projectile-project-root ".git")
-;; (add-to-list 'projectile-project-root-files-top-down-recurring ".cquery")
-;; (add-to-list 'projectile-project-root-files-top-down-recurring ".git")
+ (add-hook 'prog-major-mode #'lsp-prog-major-mode-enable)
 
+ (use-package ivy-xref
+    :ensure t
+      :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-;;
-;; (require 'lsp-ui)
-;; (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-;; (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-;; (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+(require 'lsp-ui)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+(define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+(define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
 
-(use-package ivy-xref
-  :ensure t
-  :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+(add-hook 'neotree-mode-hook
+          (lambda ()
+            (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+            (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+            ))
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 (require 'yasnippet)
 (yas-global-mode 1)
 
-
-(defun yc-dired-init ()
-  "Bunch of stuff to run for dired, either immediately or when it's
-   loaded."
-  ;; <add other stuff here>
-  (define-key dired-mode-map [return] 'dired-single-buffer)
-  (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
-  (define-key dired-mode-map "^"
-        (function
-         (lambda nil (interactive) (dired-single-buffer "..")))))
-
-(use-package dired-single
-  :ensure t
-  :init (add-hook 'dired-load-hook 'my-dired-init))
-
 ;;------------------------------------------------------------------------------
 ;;key binding
 (global-set-key [remap next-buffer]
-                'my-next-buffer)
+                'yc-next-buffer)
 (global-set-key [remap previous-buffer]
-                'my-previous-buffer)
+                'yc-previous-buffer)
 
 (global-set-key (kbd "M-w")
                 'next-multiframe-window)
+;(global-set-key (kbd "M-1")
+;                'my-previous-buffer)
 (global-set-key (kbd "M-1")
-                'my-previous-buffer)
-(global-set-key (kbd "M-2")
-                'my-next-buffer)
+                'yc-next-buffer)
 (global-set-key (kbd "M-4")
                 'evil-mc-undo-all-cursors)
 (global-set-key (kbd "M-5")
@@ -637,7 +608,10 @@
                 'enlarge-window)
 
 
-;;(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-normal-state-map [?\r] 'yc-next-buffer)
+(define-key evil-normal-state-map (kbd "S-RET") 'yc-previous-buffer)
+(define-key evil-normal-state-map (kbd "TAB") 'next-multiframe-window)
+
 ;;(define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
@@ -651,6 +625,12 @@
 (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
 (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
 
+(add-hook 'neotree-mode-hook
+          (lambda ()
+            (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+            (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+            ))
+            
 ;;(global-set-key [escape] 'evil-exit-emacs-state)
 
 
@@ -658,17 +638,15 @@
 (global-set-key (kbd "M-x")
                 'ivy-smex)
 
-(require 'ivy-rich)
-(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
-(setq ivy-rich-path-style 'full)
-
 (require 'evil-leader)
 (global-evil-leader-mode)
+
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
+  "<SPC>" 'ace-window
   "aa" 'counsel-rg
-   "m" 'counsel-bookmark
-   "@" 'counsel-imenu
+  "m"  'counsel-bookmark
+  "@"  'counsel-imenu
   "fg" 'counsel-git
   "ff" 'counsel-find-file
   "ar" 'yc-rg-arg-set-default
@@ -677,20 +655,28 @@
   "ae" 'yc-rg-arg-set-regrexp
   "as" 'yc-rg-arg-show-cmd-str
   "rr" 'ivy-regex-switch
-  "ci" 'evilnc-comment-or-uncomment-lines
   "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
   "gc" 'wgrep-finish-edit
   "xc" 'copy-to-x-clipboard
   "xp" 'paste-from-x-clipboard
   "bl" 'ivy-switch-buffer
   "bb" 'ace-jump-buffer
-  "bd" 'kill-buffer
+  "bk" 'kill-buffer
   "bo" 'ivy-switch-buffer-other-window
-  "s" 'swap-buffers-in-windows
-  "xd" 'xref-find-definitions
-  "xr" 'xref-find-references
-  "<SPC>" 'ace-window
-  "y" 'yank-browse)
+  "bs" 'swap-buffers-in-windows
+  "n"  'neotree-toggle
+  "y"  'yank-browse
+  "td" 'xref-find-definitions
+  "tr" 'xref-find-references
+  "tb" 'xref-pop-marker-stack
+  "ci" 'evilnc-comment-or-uncomment-lines
+  "cl" 'evilnc-quick-comment-or-uncomment-to-the-line
+  "cc" 'evilnc-copy-and-comment-lines
+  "cp" 'evilnc-comment-or-uncomment-paragraphs
+  "cr" 'comment-or-uncomment-region
+  "cv" 'evilnc-toggle-invert-comment-line-by-line
+  )
+
 
 ;;------------------------------------------------------------------------------
 (custom-set-variables
@@ -709,7 +695,7 @@
  '(cursor-color "#cccccc")
  '(custom-safe-themes
    (quote
-    ("4980e5ddaae985e4bae004280bd343721271ebb28f22b3e3b2427443e748cd3f" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
+    ("251348dcb797a6ea63bbfe3be4951728e085ac08eee83def071e4d2e3211acc3" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4980e5ddaae985e4bae004280bd343721271ebb28f22b3e3b2427443e748cd3f" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
  '(fci-rule-color "#373b41")
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
  '(foreground-color "#cccccc")
@@ -724,12 +710,9 @@
      ("#F309DF" 0.85)
      ("#424748" 0.1))))
  '(ivy-mode t)
- '(ivy-rich-parse-remote-file-path t)
- '(lsp-ui-doc-enable t)
- '(magit-diff-use-overlays nil)
  '(package-selected-packages
    (quote
-    (ivy-rich dired-sidebar dired-single counsel-projectile projectile projectile-git-autofetch projectile-ripgrep ivy-xref cquery company-lsp lsp-ui ac-slime parinfer evil-snipe selected eyebrowse noctilux-theme evil-numbers evil-mc evil-quickscope evil-surround csv-mode ripgrep icicles smooth-scrolling vlf wgrep rainbow-mode adaptive-wrap ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ expand-region evil-visualstar evil-smartparens evil-leader evil-anzu clang-format autopair airline-themes ace-window ace-jump-buffer)))
+    (goto-last-change cquery company-lsp lsp-ui ac-slime parinfer evil-snipe selected eyebrowse noctilux-theme evil-numbers evil-mc evil-quickscope evil-surround csv-mode ripgrep icicles smooth-scrolling vlf wgrep rainbow-mode adaptive-wrap ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-leader evil-anzu clang-format autopair airline-themes ace-window ace-jump-buffer)))
  '(pos-tip-background-color "#E6DB74")
  '(pos-tip-foreground-color "#242728")
  '(vc-annotate-background nil)
@@ -781,4 +764,3 @@
  '(verilog-tab-to-comment t)
  '(weechat-color-list
    (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
-(put 'ivy-done 'disabled nil)
