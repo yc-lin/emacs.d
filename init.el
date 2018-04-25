@@ -1,5 +1,4 @@
 (require 'package)
-(package-initialize)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/")
              t)
@@ -7,6 +6,7 @@
              '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
              t)
 (add-to-list 'load-path "/home/yclin/.emacs.d/pkg/")
+(package-initialize)
 
 
 ;;------------------------------------------------------------------------------
@@ -311,8 +311,8 @@
 (setq inhibit-startup-screen t)
 (setq make-backup-files nil)
 (setq auto-save-default nil)
+(setq visible-bell nil)
 (setq ring-bell-function #'ignore)
-(setq visible-bell t)
 (setq-default indent-tabs-mode nil)
 (defalias 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
@@ -331,32 +331,19 @@
                         '(("\\[=+><?:\\]" 1 'font-lock-function-name-face)))
 
 
-;;(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
 (add-hook 'emacs-lisp-mode-hook 'highlight-defined-mode)
-;;(add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
             (global-set-key (kbd "M-7")
                             'srefactor-lisp-format-buffer)))
 (add-hook 'lisp-mode-hook 'highlight-defined-mode)
-;;(add-hook 'lisp-mode-hook 'parinfer-mode)
 (add-hook 'lisp-mode
           (lambda ()
             (global-set-key (kbd "M-7")
                             'srefactor-lisp-format-buffer)))
-;; (add-hook 'c++-mode-hook
-;;           (lambda ()
-;;             (global-set-key (kbd "M-7")
-;;                             'clang-format-buffer)))
-
-;; (add-hook 'c-mode-hook
-;;           (lambda ()
-;;             (global-set-key (kbd "M-7")
-;;                             'clang-format-buffer)))
 
 (add-hook 'c-mode-common-hook
           (lambda ()
@@ -390,126 +377,212 @@
 ;;------------------------------------------------------------------------------
 ;; Packages
 ;;
-(setq inferior-lisp-program "/usr/bin/sbcl")
-(require 'slime)
-(require 'slime-autoloads)
-(setq slime-contribs '(slime-scratch slime-editing-commands slime-cl-indent))
-(slime-setup '(slime-fancy slime-company slime-cl-indent))
+;;(setq inferior-lisp-program "/usr/bin/sbcl")
+;;(require 'slime)
+;;(require 'slime-autoloads)
+;;(setq slime-contribs '(slime-scratch slime-editing-commands slime-cl-indent))
+;;(slime-setup '(slime-fancy slime-company slime-cl-indent))
 
-(defvar ac-slime-modes
-  '(lisp-mode))
-
-(defun ac-slime-candidates ()
-  "Complete candidates of the symbol at point."
-  (if (memq major-mode ac-slime-modes)
-      (let* ((end (point))
-             (beg (slime-symbol-start-pos))
-             (prefix (buffer-substring-no-properties beg end))
-             (result (slime-simple-completions prefix)))
-        (destructuring-bind (completions partial) result
-          completions))))
-
-(defvar ac-source-slime
-  '((candidates . ac-slime-candidates)
-    (requires-num . 3)))
-
-(ac-config-default)
-
-(add-hook 'lisp-mode-hook (lambda ()
-                            (slime-mode t)
-                            (push 'ac-source-slime ac-sources)
-                                (auto-complete-mode)))
-
-(require 'cc-mode)
-(setq c-default-style "k&r")
-
-(load-theme 'material t)
-(require 'airline-themes)
-(defalias 'powerline-minor-modes 'powerline-minor-modes-yc)
-(load-theme 'airline-badwolf t)
-
-(require 'ivy)
-(ivy-mode 1)
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(evil-mc-region-face ((t (:inherit region))))
- '(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
- '(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
- '(ivy-highlight-face ((t (:background "color-24"))))
- '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
- '(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
- '(region ((t (:background "color-22")))))
-
-(setq airline-utf-glyph-separator-left #xe0b0
-      airline-utf-glyph-separator-right #xe0b2
-      airline-utf-glyph-subseparator-left #xe0b1
-      airline-utf-glyph-subseparator-right #xe0b3
-      airline-utf-glyph-branch #xe0a0
-      airline-utf-glyph-readonly #xe0a2
-      airline-utf-glyph-linenumber #xe0a1)
-
-
-(require 'highlight-numbers)
-(add-hook 'prog-mode-hook 'highlight-numbers-mode)
-
-(require 'highlight-operators)
-(add-hook 'prog-mode-hook 'highlight-operators-mode)
+;;(defvar ac-slime-modes
+;;  '(lisp-mode))
+;;
+;;(defun ac-slime-candidates ()
+;;  "Complete candidates of the symbol at point."
+;;  (if (memq major-mode ac-slime-modes)
+;;      (let* ((end (point))
+;;             (beg (slime-symbol-start-pos))
+;;             (prefix (buffer-substring-no-properties beg end))
+;;             (result (slime-simple-completions prefix)))
+;;        (destructuring-bind (completions partial) result
+;;          completions))))
+;;
+;;(defvar ac-source-slime
+;;  '((candidates . ac-slime-candidates)
+;;    (requires-num . 3)))
+;;
+;;(ac-config-default)
+;;
+;;(add-hook 'lisp-mode-hook (lambda ()
+;;                            (slime-mode t)
+;;                            (push 'ac-source-slime ac-sources)
+;;                                (auto-complete-mode)))
+;;
+                                        ;(require 'cc-mode)
 
 (global-hl-line-mode t)
 (set-face-background hl-line-face "#303030")
-
-(require 'paren)
 (show-paren-mode t)
 (setq show-paren-delay 0)
 (set-face-foreground 'show-paren-match "#00aF00")
 
-(require 'expand-region)
-
-;; ignore EMACS MODE
-(setq evil-toggle-key "")
-;; Using VIM word forword behavior to replace EMCAS behavior
-;; (Defalias #'forward-evil-word #'forward-evil-symbol)
+(use-package cc-mode
+  :config
+  (setq c-default-style "k&r")
+  )
 
 
-(global-evil-leader-mode)
-(require 'evil)
-(evil-mode 1)
+(load-theme 'material t)
+(use-package powerline)
 
-(with-eval-after-load 'evil
-  (require 'evil-anzu)
-  (require 'evil-snipe)
-  (evil-snipe-override-mode 1)
-  (require 'evil-mc)
-  (global-evil-mc-mode 1)
-  (setq evil-goggles-duration 0.100)
-  (defalias #'forward-evil-word #'forward-evil-symbol)
-  (define-key evil-motion-state-map "\\" 'swiper)
-  (remove-hook 'evil-insert-state-exit-hook
-               'expand-abbrev t)
-  (evil-define-motion evil-yc-jump-down
-    ()
-    :type line
-    :jump t
-    "Evil motion down 4 line. Count has no effect."
-    (forward-line 4))
-  (evil-define-motion evil-yc-jump-up
-    ()
-    :type line
-    :jump t
-    "Evil motion up 4 line. Count has no effect."
-    (forward-line -4))
-  ;; example mapping
-  (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
-  (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
-  (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-  (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
-  (evil-ex-define-cmd "Wqa" "wqall")
-  (evil-ex-define-cmd "W" "write")
-  (evil-ex-define-cmd "Wall" 'evil-write-all)
-  (evil-ex-define-cmd "Wa" "wall"))
+(use-package airline-themes
+  :init
+  (progn
+    (require 'airline-themes)
+    (load-theme 'airline-badwolf t))
+  :config
+  (progn
+    (setq powerline-utf-8-separator-left        #xe0b0
+          powerline-utf-8-separator-right       #xe0b2
+          airline-utf-glyph-separator-left      #xe0b0
+          airline-utf-glyph-separator-right     #xe0b2
+          airline-utf-glyph-subseparator-left   #xe0b1
+          airline-utf-glyph-subseparator-right  #xe0b3
+          airline-utf-glyph-branch              #xe0a0
+          airline-utf-glyph-readonly            #xe0a2
+          airline-utf-glyph-linenumber          #xe0a1)))
+
+(use-package ivy
+  :ensure t
+  :diminish ivy-mode
+  :config
+  (ivy-mode 1)
+  (bind-key "C-c C-r" 'ivy-resume)
+  (custom-set-faces
+    '(evil-mc-region-face ((t (:inherit region))))
+    '(ivy-confirm-face    ((t (:inherit minibuffer-prompt :foreground "color-52"))))
+    '(ivy-current-match   ((t (:background "#65a7e2" :foreground "brightwhite"))))
+    '(ivy-highlight-face  ((t (:background "color-24"))))
+    '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
+    '(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
+    '(region ((t (:background "color-22")))))
+  )
+
+(use-package highlight-numbers
+  :ensure t
+  :init (add-hook 'prog-mode-hook 'highlight-numbers-mode))
+
+(use-package highlight-operators
+  :ensure t
+  :init (add-hook 'prog-mode-hook 'highlight-operators-mode))
+
+(use-package expand-region :ensure t)
+
+(use-package smex :ensure t)
+(require 'ivy-smex)
+(global-set-key (kbd "M-x") 'ivy-smex)
+
+(use-package evil
+  :ensure t
+  :init
+  (setq evil-toggle-key "")
+  (use-package evil-leader
+    :init (global-evil-leader-mode)
+    :config
+    (progn
+      (setq evil-leader/in-all-states t)
+      (evil-leader/set-leader "<SPC>")
+      (evil-leader/set-key
+        "<SPC>" 'ace-window
+        "aa" 'counsel-rg
+        "m"  'counsel-bookmark
+        "@"  'counsel-imenu
+        "fg" 'counsel-git
+        "ff" 'counsel-find-file
+        "ar" 'yc-rg-arg-set-default
+        "ai" 'yc-rg-arg-set-ignorecase
+        "ac" 'yc-rg-arg-set-context
+        "ae" 'yc-rg-arg-set-regrexp
+        "as" 'yc-rg-arg-show-cmd-str
+        "rr" 'ivy-regex-switch
+        "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
+        "gc" 'wgrep-finish-edit
+        "xc" 'copy-to-x-clipboard
+        "xp" 'paste-from-x-clipboard
+        "bl" 'ivy-switch-buffer
+        "bb" 'ace-jump-buffer
+        "bk" 'kill-buffer
+        "bo" 'ivy-switch-buffer-other-window
+        "bs" 'swap-buffers-in-windows
+        "n"  'neotree-toggle
+        "y"  'yank-browse
+        "td" 'xref-find-definitions
+        "tr" 'xref-find-references
+        "tb" 'xref-pop-marker-stack
+        "ci" 'evilnc-comment-or-uncomment-lines
+        "cl" 'evilnc-quick-comment-or-uncomment-to-the-line
+        "cc" 'evilnc-copy-and-comment-lines
+        "cp" 'evilnc-comment-or-uncomment-paragraphs
+        "cr" 'comment-or-uncomment-region
+        "cv" 'evilnc-toggle-invert-comment-line-by-line
+       )))
+  :config
+    (evil-mode 1)
+    (global-evil-mc-mode 1)
+    (global-evil-leader-mode)
+    (evil-snipe-override-mode 1)
+    (defalias #'forward-evil-word #'forward-evil-symbol)
+    (define-key evil-motion-state-map "\\" 'swiper)
+    (remove-hook 'evil-insert-state-exit-hook 'expand-abbrev t)
+    (evil-define-motion evil-yc-jump-down
+        ()
+        :type line
+        :jump t
+        "Evil motion down 4 line. Count has no effect."
+        (forward-line 4))
+    (evil-define-motion evil-yc-jump-up
+        ()
+        :type line
+        :jump t
+        "Evil motion up 4 line. Count has no effect."
+        (forward-line -4))
+    ;; example mapping
+    (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
+    (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
+    (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+    (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
+    (evil-ex-define-cmd "Wqa" "wqall")
+    (evil-ex-define-cmd "W" "write")
+    (evil-ex-define-cmd "Wall" 'evil-write-all)
+    (evil-ex-define-cmd "Wa" "wall")
+  )
+
+;; (global-evil-leader-mode)
+;; (require 'evil)
+;; (evil-mode 1)
+
+;; (with-eval-after-load 'evil
+;;   (require 'evil-anzu)
+;;   (require 'evil-snipe)
+;;   (evil-snipe-override-mode 1)
+;;   (require 'evil-mc)
+;;   (global-evil-mc-mode 1)
+;;   (setq evil-goggles-duration 0.100)
+;;   (defalias #'forward-evil-word #'forward-evil-symbol)
+;;   (define-key evil-motion-state-map "\\" 'swiper)
+;;   (remove-hook 'evil-insert-state-exit-hook
+;;                'expand-abbrev t)
+;;   (evil-define-motion evil-yc-jump-down
+;;     ()
+;;     :type line
+;;     :jump t
+;;     "Evil motion down 4 line. Count has no effect."
+;;     (forward-line 4))
+;;   (evil-define-motion evil-yc-jump-up
+;;     ()
+;;     :type line
+;;     :jump t
+;;     "Evil motion up 4 line. Count has no effect."
+;;     (forward-line -4))
+;;   ;; example mapping
+;;   (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
+;;   (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
+;;   (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+;;   (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
+;;   (evil-ex-define-cmd "Wqa" "wqall")
+;;   (evil-ex-define-cmd "W" "write")
+;;   (evil-ex-define-cmd "Wall" 'evil-write-all)
+;;   (evil-ex-define-cmd "Wa" "wall")
+;;   )
 
 (require 'ace-window)
 (setq aw-dispatch-always t)
@@ -528,26 +601,26 @@
 
 (require 'clang-format)
 (setq clang-format-style "Google")
-(add-hook 'c-mode-hook
-	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
-(add-hook 'c++-mode-hook
-	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+;; (add-hook 'c-mode-hook
+;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+;; (add-hook 'c++-mode-hook
+;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
 
 ;;company
-(require 'company)
-(add-hook 'after-init-hook 'global-company-mode)
-(setq company-idle-delay 0.1)
-(setq company-minimum-prefix-length 1)
-(setq company-dabbrev-other-buffers t)
-(setq company-dabbrev-code-other-buffers 'all)
+(use-package company
+  :ensure t
+  :config
+    (add-hook 'after-init-hook 'global-company-mode)
+    (setq company-idle-delay 0.1)
+    (setq company-minimum-prefix-length 2)
+    (setq company-dabbrev-other-buffers t)
+    (setq company-dabbrev-code-other-buffers 'all))
 ;(setq company-backends '((company-dabbrev-code company-gtags)))
 
 (require 'company-lsp)
 (push 'company-lsp company-backends)
 
-(setq cquery-executable "/home/yclin/repo/cquery/bin/cquery")
-;(setq cquery-extra-args '("--log-file=/tmp/cq.log"))
-(setq cquery-cache-dir "/tmp/cq_cache")
+(add-hook 'prog-major-mode #'lsp-prog-major-mode-enable)
 
 (defun cquery//enable ()
   (condition-case nil
@@ -556,28 +629,46 @@
 
 (use-package cquery
   :commands lsp-cquery-enable
-  :init (add-hook 'c-mode-common-hook #'cquery//enable))
+  :init
+    ;(setq cquery-extra-args '("--log-file=/tmp/cq.log"))
+    (setq cquery-executable "/home/yclin/repo/cquery/bin/cquery")
+    (setq cquery-cache-dir "/tmp/cq_cache")
+    (add-hook 'c-mode-common-hook #'cquery//enable))
 
- (add-hook 'prog-major-mode #'lsp-prog-major-mode-enable)
+(use-package ivy-xref
+  :ensure t
+  :init
+    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
- (use-package ivy-xref
-    :ensure t
-      :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+(use-package lsp-ui
+  :ensure t
+  :init
+    (add-hook 'c-mode-common-hook 'flycheck-mode)
+    (add-hook 'c++-mode-common-hook 'flycheck-mode)
+  :config
+    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+)
+;(require 'lsp-ui)
+;(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+;(add-hook 'c-mode-hook 'flycheck-mode)
+;(add-hook 'c++-mode-hook 'flycheck-mode)
 
-(require 'lsp-ui)
-(add-hook 'lsp-mode-hook 'lsp-ui-mode)
-(define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-(define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+(use-package neotree
+  :ensure t
+  :config
+    (add-hook 'neotree-mode-hook (lambda ()
+                (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)))
+)
 
-(add-hook 'neotree-mode-hook
-          (lambda ()
-            (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
-            (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
-            ))
-
-(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-(require 'yasnippet)
-(yas-global-mode 1)
+(use-package yasnippet
+  :ensure t
+  :init
+    (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  :config
+    (yas-global-mode 1)
+)
 
 ;;------------------------------------------------------------------------------
 ;;key binding
@@ -630,137 +721,23 @@
             (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
             (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
             ))
-            
-;;(global-set-key [escape] 'evil-exit-emacs-state)
-
-
-(require 'ivy-smex)
-(global-set-key (kbd "M-x")
-                'ivy-smex)
-
-(require 'evil-leader)
-(global-evil-leader-mode)
-
-(evil-leader/set-leader "<SPC>")
-(evil-leader/set-key
-  "<SPC>" 'ace-window
-  "aa" 'counsel-rg
-  "m"  'counsel-bookmark
-  "@"  'counsel-imenu
-  "fg" 'counsel-git
-  "ff" 'counsel-find-file
-  "ar" 'yc-rg-arg-set-default
-  "ai" 'yc-rg-arg-set-ignorecase
-  "ac" 'yc-rg-arg-set-context
-  "ae" 'yc-rg-arg-set-regrexp
-  "as" 'yc-rg-arg-show-cmd-str
-  "rr" 'ivy-regex-switch
-  "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
-  "gc" 'wgrep-finish-edit
-  "xc" 'copy-to-x-clipboard
-  "xp" 'paste-from-x-clipboard
-  "bl" 'ivy-switch-buffer
-  "bb" 'ace-jump-buffer
-  "bk" 'kill-buffer
-  "bo" 'ivy-switch-buffer-other-window
-  "bs" 'swap-buffers-in-windows
-  "n"  'neotree-toggle
-  "y"  'yank-browse
-  "td" 'xref-find-definitions
-  "tr" 'xref-find-references
-  "tb" 'xref-pop-marker-stack
-  "ci" 'evilnc-comment-or-uncomment-lines
-  "cl" 'evilnc-quick-comment-or-uncomment-to-the-line
-  "cc" 'evilnc-copy-and-comment-lines
-  "cp" 'evilnc-comment-or-uncomment-paragraphs
-  "cr" 'comment-or-uncomment-region
-  "cv" 'evilnc-toggle-invert-comment-line-by-line
-  )
-
-
-;;------------------------------------------------------------------------------
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default bold shadow italic underline bold bold-italic bold])
- '(ansi-color-names-vector
-   (vector "#c5c8c6" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#b294bb" "#8abeb7" "#373b41"))
- '(background-color "#202020")
- '(background-mode dark)
- '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
- '(compilation-message-face (quote default))
- '(cursor-color "#cccccc")
- '(custom-safe-themes
-   (quote
-    ("251348dcb797a6ea63bbfe3be4951728e085ac08eee83def071e4d2e3211acc3" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4980e5ddaae985e4bae004280bd343721271ebb28f22b3e3b2427443e748cd3f" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "70403e220d6d7100bae7775b3334eddeb340ba9c37f4b39c189c2c29d458543b" default)))
- '(fci-rule-color "#373b41")
- '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
- '(foreground-color "#cccccc")
- '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
- '(highlight-tail-colors
-   (quote
-    (("#424748" 0.0)
-     ("#63de5d" 0.2)
-     ("#4BBEAE" 0.3)
-     ("#9A8F21" 0.6)
-     ("#A75B00" 0.7)
-     ("#F309DF" 0.85)
-     ("#424748" 0.1))))
- '(ivy-mode t)
  '(package-selected-packages
    (quote
-    (goto-last-change cquery company-lsp lsp-ui ac-slime parinfer evil-snipe selected eyebrowse noctilux-theme evil-numbers evil-mc evil-quickscope evil-surround csv-mode ripgrep icicles smooth-scrolling vlf wgrep rainbow-mode adaptive-wrap ivy yasnippet highlight-defined srefactor slime-company slime-theme slime use-package evil-nerd-commenter elisp-format whitespace-cleanup-mode rainbow-delimiters iedit highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers grizzl git-gutter git-gutter+ flycheck-irony expand-region evil-visualstar evil-smartparens evil-leader evil-anzu clang-format autopair airline-themes ace-window ace-jump-buffer)))
- '(pos-tip-background-color "#E6DB74")
- '(pos-tip-foreground-color "#242728")
- '(vc-annotate-background nil)
- '(vc-annotate-color-map
-   (quote
-    ((20 . "#cc6666")
-     (40 . "#de935f")
-     (60 . "#f0c674")
-     (80 . "#b5bd68")
-     (100 . "#8abeb7")
-     (120 . "#81a2be")
-     (140 . "#b294bb")
-     (160 . "#cc6666")
-     (180 . "#de935f")
-     (200 . "#f0c674")
-     (220 . "#b5bd68")
-     (240 . "#8abeb7")
-     (260 . "#81a2be")
-     (280 . "#b294bb")
-     (300 . "#cc6666")
-     (320 . "#de935f")
-     (340 . "#f0c674")
-     (360 . "#b5bd68"))))
- '(vc-annotate-very-old-color nil)
- '(verilog-align-ifelse t)
- '(verilog-auto-arg-format (quote single))
- '(verilog-auto-delete-trailing-whitespace nil)
- '(verilog-auto-endcomments nil)
- '(verilog-auto-ignore-concat t)
- '(verilog-auto-indent-on-newline t)
- '(verilog-auto-inst-param-value t)
- '(verilog-auto-inst-vector nil)
- '(verilog-auto-lineup (quote ignore))
- '(verilog-auto-newline nil)
- '(verilog-auto-save-policy nil)
- '(verilog-auto-star-expand nil)
- '(verilog-auto-template-warn-unused t)
- '(verilog-case-indent 2)
- '(verilog-cexp-indent 2)
- '(verilog-highlight-grouping-keywords t)
- '(verilog-highlight-modules t)
- '(verilog-indent-begin-after-if t)
- '(verilog-indent-declaration-macros t)
- '(verilog-indent-level 2)
- '(verilog-indent-level-behavioral 2)
- '(verilog-indent-level-declaration 2)
- '(verilog-indent-level-module 2)
- '(verilog-indent-lists t)
- '(verilog-tab-to-comment t)
- '(weechat-color-list
-   (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff")))
+    (yasnippet wgrep vlf use-package smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch parinfer neotree material-theme lsp-ui ivy-xref ivy-rich irony iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined grizzl goto-last-change git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format dired-single dired-sidebar diminish csv-mode cquery counsel-projectile company-lsp clang-format autopair all-the-icons-ivy airline-themes adaptive-wrap ace-window ac-slime))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(evil-mc-region-face ((t (:inherit region))))
+ '(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
+ '(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
+ '(ivy-highlight-face ((t (:background "color-24"))))
+ '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
+ '(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
+ '(region ((t (:background "color-22")))))
