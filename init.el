@@ -7,7 +7,48 @@
              t)
 (add-to-list 'load-path "/home/yclin/.emacs.d/pkg/")
 (package-initialize)
+(setq inhibit-startup-screen t initial-buffer-choice  nil)
 
+(require 'ivy)
+(ivy-mode 1)
+(require 'ivy-smex)
+(global-set-key (kbd "M-x") 'ivy-smex)
+(require ' ivy-xref)
+
+(setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+
+
+(defvar ivy-regex-switch-value 1 "Initial setting for the `a` global variable.")
+(defun ivy-regex-switch ()
+ "Doc-string for `ivy-regex-switch` function."
+ (interactive)
+ (cond
+  ((= ivy-regex-switch-value 1)
+   (message "Select ivy-regex")
+   (setq ivy-re-builders-alist '((swiper . ivy--regex)
+                                 (t . ivy--regex-plus)))
+   (setq ivy-regex-switch-value 2))
+  ((= ivy-regex-switch-value 2)
+   (message "Select ivy-regex-plus")
+   (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                                 (t . ivy--regex-plus)))
+   (setq ivy-regex-switch-value 3))
+  ((= ivy-regex-switch-value 3)
+   (message "Select ivy-regex-ignore-order")
+   (setq ivy-re-builders-alist '((swiper . ivy--regex-ignore-order)
+                                 (t . ivy--regex-plus)))
+   (setq ivy-regex-switch-value 4))
+  ((= ivy-regex-switch-value 4)
+   (message "Select ivy-regex-fuzzy")
+   (setq ivy-re-builders-alist '((swiper . ivy--regex-fuzzy)
+                                 (t . ivy--regex-plus)))
+   (setq ivy-regex-switch-value 1))))
+
+(define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 
 ;;------------------------------------------------------------------------------
 ;; custom Script
@@ -17,7 +58,6 @@
                              "*lsp-cquery stderr*"
                              "*lsp-cquery stderr*<2>"
                              "*xref*"))
-
 (defun yc-change-buffer (change-buffer)
   "Call CHANGE-BUFFER until current buffer is not in `yc-skippable-buffers'."
   (let ((initial (current-buffer)))
@@ -99,46 +139,7 @@
                       (*is-a-mac* "pbpaste")
                       (t "xsel -ob"))
                      1))))
-(setq save-interprogram-paste-before-kill
-      t)
-
-;; (defface font-lock-func-face
-;;   '((nil (:foreground "#00ffd7" :weight bold))
-;;     (t (:bold t :italic t)))
-;;   "Font Lock mode face used for function calls."
-;;   :group 'font-lock-highlighting-faces)
-
-;; (font-lock-add-keywords
-;;    'common-lisp-mode
-;;    '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
-;;           1 'font-lock-func-face)))
-
-
-(defvar ivy-regex-switch-value 1 "Initial setting for the `a` global variable.")
-(defun ivy-regex-switch ()
-  "Doc-string for `ivy-regex-switch` function."
-  (interactive)
-  (cond
-   ((= ivy-regex-switch-value 1)
-    (message "Select ivy-regex")
-    (setq ivy-re-builders-alist '((swiper . ivy--regex)
-                                  (t . ivy--regex-plus)))
-    (setq ivy-regex-switch-value 2))
-   ((= ivy-regex-switch-value 2)
-    (message "Select ivy-regex-plus")
-    (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
-                                  (t . ivy--regex-plus)))
-    (setq ivy-regex-switch-value 3))
-   ((= ivy-regex-switch-value 3)
-    (message "Select ivy-regex-ignore-order")
-    (setq ivy-re-builders-alist '((swiper . ivy--regex-ignore-order)
-                                  (t . ivy--regex-plus)))
-    (setq ivy-regex-switch-value 4))
-   ((= ivy-regex-switch-value 4)
-    (message "Select ivy-regex-fuzzy")
-    (setq ivy-re-builders-alist '((swiper . ivy--regex-fuzzy)
-                                  (t . ivy--regex-plus)))
-    (setq ivy-regex-switch-value 1))))
+(setq save-interprogram-paste-before-kill t)
 
 (setq yc-ag-base-command '"ag --follow --nocolor --nogroup %s")
 (setq yc-ag-arg-context '"ag --follow --nocolor --nogroup -C 2 %s")
@@ -345,13 +346,13 @@
             (global-set-key (kbd "M-7")
                             'srefactor-lisp-format-buffer)))
 
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (which-function-mode t)))
+;; (add-hook 'c-mode-common-hook
+;;           (lambda ()
+;;             (which-function-mode t)))
 
-(add-hook 'c++-mode-common-hook
-          (lambda ()
-            (which-function-mode t)))
+;; (add-hook 'c++-mode-common-hook
+;;           (lambda ()
+;;             (which-function-mode t)))
 
 (add-to-list 'auto-mode-alist
              '("\\.svi\\'" . verilog-mode))
@@ -428,7 +429,7 @@
   :init
   (progn
     (require 'airline-themes)
-    (load-theme 'airline-badwolf t))
+    (load-theme 'airline-cool t))
   :config
   (progn
     (setq powerline-utf-8-separator-left        #xe0b0
@@ -441,22 +442,6 @@
           airline-utf-glyph-readonly            #xe0a2
           airline-utf-glyph-linenumber          #xe0a1)))
 
-(use-package ivy
-  :ensure t
-  :diminish ivy-mode
-  :config
-  (ivy-mode 1)
-  (bind-key "C-c C-r" 'ivy-resume)
-  (custom-set-faces
-    '(evil-mc-region-face ((t (:inherit region))))
-    '(ivy-confirm-face    ((t (:inherit minibuffer-prompt :foreground "color-52"))))
-    '(ivy-current-match   ((t (:background "#65a7e2" :foreground "brightwhite"))))
-    '(ivy-highlight-face  ((t (:background "color-24"))))
-    '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
-    '(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
-    '(region ((t (:background "color-22")))))
-  )
-
 (use-package highlight-numbers
   :ensure t
   :init (add-hook 'prog-mode-hook 'highlight-numbers-mode))
@@ -466,10 +451,8 @@
   :init (add-hook 'prog-mode-hook 'highlight-operators-mode))
 
 (use-package expand-region :ensure t)
-
 (use-package smex :ensure t)
-(require 'ivy-smex)
-(global-set-key (kbd "M-x") 'ivy-smex)
+
 
 (use-package evil
   :ensure t
@@ -536,53 +519,20 @@
         "Evil motion up 4 line. Count has no effect."
         (forward-line -4))
     ;; example mapping
-    (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
-    (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
     (evil-ex-define-cmd "Wq" 'evil-save-and-close)
     (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
     (evil-ex-define-cmd "Wqa" "wqall")
     (evil-ex-define-cmd "W" "write")
     (evil-ex-define-cmd "Wall" 'evil-write-all)
     (evil-ex-define-cmd "Wa" "wall")
+    (define-key evil-normal-state-map [?\r] 'yc-next-buffer)
+    (define-key evil-normal-state-map (kbd "S-RET") 'yc-previous-buffer)
+    (define-key evil-normal-state-map (kbd "TAB") 'next-multiframe-window)
+    (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
+    (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
+    (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
+    (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
   )
-
-;; (global-evil-leader-mode)
-;; (require 'evil)
-;; (evil-mode 1)
-
-;; (with-eval-after-load 'evil
-;;   (require 'evil-anzu)
-;;   (require 'evil-snipe)
-;;   (evil-snipe-override-mode 1)
-;;   (require 'evil-mc)
-;;   (global-evil-mc-mode 1)
-;;   (setq evil-goggles-duration 0.100)
-;;   (defalias #'forward-evil-word #'forward-evil-symbol)
-;;   (define-key evil-motion-state-map "\\" 'swiper)
-;;   (remove-hook 'evil-insert-state-exit-hook
-;;                'expand-abbrev t)
-;;   (evil-define-motion evil-yc-jump-down
-;;     ()
-;;     :type line
-;;     :jump t
-;;     "Evil motion down 4 line. Count has no effect."
-;;     (forward-line 4))
-;;   (evil-define-motion evil-yc-jump-up
-;;     ()
-;;     :type line
-;;     :jump t
-;;     "Evil motion up 4 line. Count has no effect."
-;;     (forward-line -4))
-;;   ;; example mapping
-;;   (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
-;;   (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
-;;   (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-;;   (evil-ex-define-cmd "Wqall" 'evil-save-and-quit)
-;;   (evil-ex-define-cmd "Wqa" "wqall")
-;;   (evil-ex-define-cmd "W" "write")
-;;   (evil-ex-define-cmd "Wall" 'evil-write-all)
-;;   (evil-ex-define-cmd "Wa" "wall")
-;;   )
 
 (require 'ace-window)
 (setq aw-dispatch-always t)
@@ -601,10 +551,11 @@
 
 (require 'clang-format)
 (setq clang-format-style "Google")
-;; (add-hook 'c-mode-hook
-;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
-;; (add-hook 'c++-mode-hook
-;; 	  (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+
+(add-hook 'c-mode-hook
+	  (lambda() (eldoc-mode -1)))
+(add-hook 'c++-mode-hook
+	  (lambda() (eldoc-mode -1)))
 
 ;;company
 (use-package company
@@ -635,24 +586,16 @@
     (setq cquery-cache-dir "/tmp/cq_cache")
     (add-hook 'c-mode-common-hook #'cquery//enable))
 
-(use-package ivy-xref
-  :ensure t
-  :init
-    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-
 (use-package lsp-ui
   :ensure t
   :init
     (add-hook 'c-mode-common-hook 'flycheck-mode)
     (add-hook 'c++-mode-common-hook 'flycheck-mode)
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   :config
     (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
     (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
 )
-;(require 'lsp-ui)
-;(add-hook 'lsp-mode-hook 'lsp-ui-mode)
-;(add-hook 'c-mode-hook 'flycheck-mode)
-;(add-hook 'c++-mode-hook 'flycheck-mode)
 
 (use-package neotree
   :ensure t
@@ -668,10 +611,10 @@
     (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   :config
     (yas-global-mode 1)
-)
+    )
 
 ;;------------------------------------------------------------------------------
-;;key binding
+;; key binding
 (global-set-key [remap next-buffer]
                 'yc-next-buffer)
 (global-set-key [remap previous-buffer]
@@ -699,45 +642,30 @@
                 'enlarge-window)
 
 
-(define-key evil-normal-state-map [?\r] 'yc-next-buffer)
-(define-key evil-normal-state-map (kbd "S-RET") 'yc-previous-buffer)
-(define-key evil-normal-state-map (kbd "TAB") 'next-multiframe-window)
-
 ;;(define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-(define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-(define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-(define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
-(define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
 
-(add-hook 'neotree-mode-hook
-          (lambda ()
-            (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
-            (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
-            ))
+(custom-set-faces
+'(evil-mc-region-face ((t (:inherit region))))
+'(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
+'(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
+'(ivy-highlight-face ((t (:background "color-24"))))
+'(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
+'(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
+'(region ((t (:background "color-22")))))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(lsp-ui-sideline-show-hover t)
+ '(lsp-ui-sideline-show-symbol t)
  '(package-selected-packages
    (quote
-    (yasnippet wgrep vlf use-package smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch parinfer neotree material-theme lsp-ui ivy-xref ivy-rich irony iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined grizzl goto-last-change git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format dired-single dired-sidebar diminish csv-mode cquery counsel-projectile company-lsp clang-format autopair all-the-icons-ivy airline-themes adaptive-wrap ace-window ac-slime))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(evil-mc-region-face ((t (:inherit region))))
- '(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
- '(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
- '(ivy-highlight-face ((t (:background "color-24"))))
- '(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
- '(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
- '(region ((t (:background "color-22")))))
+    (counsel swiper yasnippet wgrep vlf use-package tree-mode smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch posframe parinfer neotree material-theme lsp-ui iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined hierarchy grizzl git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format dired-subtree diminish csv-mode cquery company-lsp clang-format autopair airline-themes adaptive-wrap ace-window ac-slime))))
+
