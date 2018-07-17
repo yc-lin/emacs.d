@@ -1,19 +1,24 @@
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/")
-             t)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
-             t)
+(setq package-enable-at-startup nil)
+(setq package-archives '(("org"   . "http://orgmode.org/elpa/")
+			 ("gnu"   . "http://elpa.gnu.org/packages/")
+			 ("melpa" . "https://melpa.org/packages/")))
+
 (add-to-list 'load-path "/home/yclin/.emacs.d/pkg/")
 (package-initialize)
+
 (setq inhibit-startup-screen t initial-buffer-choice  nil)
 
 (require 'ivy)
-(ivy-mode 1)
 (require 'ivy-smex)
+(require 'ivy-xref)
+(require 'ivy-rich)
+(ivy-mode 1)
 (global-set-key (kbd "M-x") 'ivy-smex)
-(require ' ivy-xref)
+(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+(define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 
 (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
 (setq ivy-use-virtual-buffers t)
@@ -46,12 +51,13 @@
                                  (t . ivy--regex-plus)))
    (setq ivy-regex-switch-value 1))))
 
-(define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-(define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 
 ;;------------------------------------------------------------------------------
 ;; custom Script
+(setq frame-title-format
+      (list (format "%s %%S: %%j " (system-name))
+                    '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
 (setq yc-skippable-buffers '("*Messages*" "*Help*" "*Completions*"
                              "*Buffer List*" "*Backtrace*" "*Compile-Log*"
                              "*GNU Emacs*" "*scratch*"
@@ -240,20 +246,27 @@
 (defpowerline powerline-minor-modes-yc
   (mapconcat (lambda (mm)
                (propertize mm
-                           'mouse-face
-                           'mode-line-highlight
-                           'help-echo
-                           "Minor mode\n mouse-1: Display minor mode menu\n mouse-2: Show help for minor mode\n mouse-3: Toggle minor modes"
-                           'local-map
-                           (let ((map (make-sparse-keymap)))
-                             (define-key map [mode-line down-mouse-1] (powerline-mouse 'minor 'menu mm))
-                             (define-key map [mode-line mouse-2] (powerline-mouse 'minor 'help mm))
-                             (define-key map [mode-line down-mouse-3] (powerline-mouse 'minor 'menu mm))
-                             (define-key map [header-line down-mouse-3] (powerline-mouse 'minor 'menu mm))
-                             map)))
-                                        ;(split-string (format-mode-line minor-mode-alist))
-             (split-string "")
+                           'mouse-face 'mode-line-highlight
+                           'help-echo "Minor mode\n mouse-1: Display minor mode menu\n mouse-2: Show help for minor mode\n mouse-3: Toggle minor modes"
+                           'local-map (let ((map (make-sparse-keymap)))
+                                        (define-key map
+                                          [mode-line down-mouse-1]
+                                          (powerline-mouse 'minor 'menu mm))
+                                        (define-key map
+                                          [mode-line mouse-2]
+                                          (powerline-mouse 'minor 'help mm))
+                                        (define-key map
+                                          [mode-line down-mouse-3]
+                                          (powerline-mouse 'minor 'menu mm))
+                                        (define-key map
+                                          [header-line down-mouse-3]
+                                          (powerline-mouse 'minor 'menu mm))
+                                        map)))
+             (split-string (format-mode-line minor-mode-alist))
              (propertize " " 'face face)))
+
+(setq-default frame-title-format "%b (%f)")
+
 
 (defun yank-browse (string)
       "Browse the `kill-ring' to choose which entry to yank."
@@ -323,6 +336,8 @@
   (menu-bar-mode -1))
 (when (featurep 'tool-bar)
   (tool-bar-mode -1))
+(when (featurep 'tooltip)
+  (tooltip-mode -1))
 (when (featurep 'scroll-bar)
   (scroll-bar-mode -1))
 (font-lock-add-keywords 'c-mode
@@ -440,7 +455,8 @@
           airline-utf-glyph-subseparator-right  #xe0b3
           airline-utf-glyph-branch              #xe0a0
           airline-utf-glyph-readonly            #xe0a2
-          airline-utf-glyph-linenumber          #xe0a1)))
+          airline-utf-glyph-linenumber          #xe0a1
+          airline-display-directory nil)))
 
 (use-package highlight-numbers
   :ensure t
@@ -476,15 +492,16 @@
         "ac" 'yc-rg-arg-set-context
         "ae" 'yc-rg-arg-set-regrexp
         "as" 'yc-rg-arg-show-cmd-str
-        "rr" 'ivy-regex-switch
-        "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
         "gc" 'wgrep-finish-edit
         "xc" 'copy-to-x-clipboard
         "xp" 'paste-from-x-clipboard
+        "rr" 'ivy-regex-switch
+        "gm" 'ivy-wgrep-chtnge-to-wgrep-mode
         "bl" 'ivy-switch-buffer
+        "bo" 'ivy-switch-buffer-other-window
+        "s"  'ivy-yasnippet
         "bb" 'ace-jump-buffer
         "bk" 'kill-buffer
-        "bo" 'ivy-switch-buffer-other-window
         "bs" 'swap-buffers-in-windows
         "n"  'neotree-toggle
         "y"  'yank-browse
@@ -610,8 +627,16 @@
   :init
     (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   :config
-    (yas-global-mode 1)
-    )
+    (yas-global-mode 1))
+
+;; Which Key
+(use-package which-key
+  :ensure t
+  :init
+  (setq which-key-separator " ")
+  (setq which-key-prefix-prefix "+")
+  :config
+  (which-key-mode 1))
 
 ;;------------------------------------------------------------------------------
 ;; key binding
@@ -626,6 +651,10 @@
 ;                'my-previous-buffer)
 (global-set-key (kbd "M-1")
                 'yc-next-buffer)
+(global-set-key (kbd "M-2")
+                'lsp-ui-peek-jump-forward)
+(global-set-key (kbd "M-3")
+                'lsp-ui-peek-jump-backward)
 (global-set-key (kbd "M-4")
                 'evil-mc-undo-all-cursors)
 (global-set-key (kbd "M-5")
@@ -648,24 +677,17 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-
-(custom-set-faces
-'(evil-mc-region-face ((t (:inherit region))))
-'(ivy-confirm-face ((t (:inherit minibuffer-prompt :foreground "color-52"))))
-'(ivy-current-match ((t (:background "#65a7e2" :foreground "brightwhite"))))
-'(ivy-highlight-face ((t (:background "color-24"))))
-'(ivy-match-required-face ((t (:inherit minibuffer-prompt :foreground "color-16"))))
-'(ivy-minibuffer-match-face-1 ((t (:background "color-28"))))
-'(region ((t (:background "color-22")))))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(lsp-ui-sideline-show-hover t)
- '(lsp-ui-sideline-show-symbol t)
  '(package-selected-packages
    (quote
-    (counsel swiper yasnippet wgrep vlf use-package tree-mode smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch posframe parinfer neotree material-theme lsp-ui iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined hierarchy grizzl git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format dired-subtree diminish csv-mode cquery company-lsp clang-format autopair airline-themes adaptive-wrap ace-window ac-slime))))
-
+    (which-key wgrep vlf use-package tree-mode smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch parinfer neotree material-theme lsp-ui ivy-yasnippet ivy-xref ivy-rich iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined hierarchy grizzl git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format doom-themes doom-modeline dired-subtree diminish deadgrep csv-mode cquery counsel company-posframe company-lsp clang-format autopair airline-themes adaptive-wrap ace-window ac-slime))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
