@@ -8,6 +8,8 @@
 (package-initialize)
 
 (setq inhibit-startup-screen t initial-buffer-choice  nil)
+(setq org-startup-indented t)
+
 
 (require 'ivy)
 (require 'ivy-smex)
@@ -15,7 +17,7 @@
 (require 'ivy-rich)
 (ivy-mode 1)
 (global-set-key (kbd "M-x") 'ivy-smex)
-(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
 (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 (define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 (define-key ivy-mode-map (kbd "<escape>") 'minibuffer-keyboard-quit)
@@ -238,6 +240,8 @@
                                                ("module" "^module \\(.+\\)\\( \\)" 1)
                                                ("interface" "^interface \\(.+\\)\\( \\)"
                                                 1)))
+
+;(add-hook 'org-mode-hook 'evil-org-mode)
 
 (add-hook 'verilog-mode-hook
           (lambda ()
@@ -520,6 +524,7 @@
     (global-evil-mc-mode 1)
     (global-evil-leader-mode)
     (evil-snipe-override-mode 1)
+    (evil-surround-mode 1)
     (defalias #'forward-evil-word #'forward-evil-symbol)
     (define-key evil-motion-state-map "\\" 'swiper)
     (remove-hook 'evil-insert-state-exit-hook 'expand-abbrev t)
@@ -543,7 +548,7 @@
     (evil-ex-define-cmd "Wall" 'evil-write-all)
     (evil-ex-define-cmd "Wa" "wall")
     (define-key evil-normal-state-map [?\r] 'yc-next-buffer)
-    (define-key evil-normal-state-map (kbd "S-RET") 'yc-previous-buffer)
+    ;(define-key evil-normal-state-map (kbd "S-RET") 'yc-previous-buffer)
     (define-key evil-normal-state-map (kbd "TAB") 'next-multiframe-window)
     (define-key evil-motion-state-map (kbd "[") #'evil-yc-jump-up)
     (define-key evil-motion-state-map (kbd "]") #'evil-yc-jump-down)
@@ -684,7 +689,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (which-key wgrep vlf use-package tree-mode smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch parinfer neotree material-theme lsp-ui ivy-yasnippet ivy-xref ivy-rich iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined hierarchy grizzl git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format doom-themes doom-modeline dired-subtree diminish deadgrep csv-mode cquery counsel company-posframe company-lsp clang-format autopair airline-themes adaptive-wrap ace-window ac-slime))))
+    (evil-org counsel-notmuch notmuch notmuch-labeler which-key wgrep vlf use-package tree-mode smex slime-theme slime-company selected rainbow-mode rainbow-delimiters projectile-ripgrep projectile-git-autofetch parinfer neotree material-theme lsp-ui ivy-yasnippet ivy-xref ivy-rich iedit icicles highlight-symbol highlight-quoted highlight-parentheses highlight-operators highlight-numbers highlight-defined hierarchy grizzl git-gutter git-gutter+ eyebrowse expand-region evil-visualstar evil-surround evil-snipe evil-smartparens evil-quickscope evil-numbers evil-nerd-commenter evil-mc evil-leader evil-anzu elisp-format doom-themes doom-modeline dired-subtree diminish deadgrep csv-mode cquery counsel company-posframe company-lsp clang-format autopair airline-themes adaptive-wrap ace-window ac-slime))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
